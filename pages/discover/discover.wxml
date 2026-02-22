@@ -1,0 +1,98 @@
+<!--pages/discover/discover.wxml-->
+<view class="page">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">发现乡村文化</text>
+    <text class="page-subtitle">探索传统之美</text>
+  </view>
+
+  <!-- 搜索栏 -->
+  <search-bar 
+    placeholder="搜索你感兴趣的内容..."
+    bind:search="onSearch"
+  ></search-bar>
+
+  <!-- 热门推荐 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">热门推荐</text>
+      <view class="section-line"></view>
+    </view>
+    
+    <view class="img-list">
+      <view 
+        class="img-item" 
+        wx:for="{{imgList}}" 
+        wx:key="id"
+        bindtap="goToDetail"
+        data-item="{{item}}"
+      >
+        <image 
+          src="{{item.url}}" 
+          class="discover-image"
+          mode="aspectFill"
+        ></image>
+        <view class="img-overlay">
+          <view class="stats-bar">
+            <view class="stat">
+              <image src="/images/see.png" class="stat-icon"></image>
+              <text>{{item.viewCount}}</text>
+            </view>
+            <view class="stat">
+              <image src="/images/love.png" class="stat-icon"></image>
+              <text>{{item.likeCount}}</text>
+            </view>
+            <view class="stat">
+              <image src="/images/collect.png" class="stat-icon"></image>
+              <text>{{item.collectCount}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 精选内容 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">精选内容</text>
+      <view class="section-line"></view>
+    </view>
+    
+    <view class="img-grid">
+      <view 
+        class="grid-row" 
+        wx:for="{{imgListTwo}}" 
+        wx:for-item="row"
+        wx:key="index"
+      >
+        <view 
+          class="grid-item" 
+          wx:for="{{row}}" 
+          wx:for-item="item"
+          wx:key="id"
+          bindtap="goToDetail"
+          data-item="{{item}}"
+        >
+          <image 
+            src="{{item.url}}" 
+            class="grid-image"
+            mode="aspectFill"
+          ></image>
+          <view class="grid-overlay">
+            <view class="stats-bar">
+              <view class="stat">
+                <image src="/images/see.png" class="stat-icon"></image>
+                <text>{{item.viewCount}}</text>
+              </view>
+              <view class="stat">
+                <image src="/images/love.png" class="stat-icon"></image>
+                <text>{{item.likeCount}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

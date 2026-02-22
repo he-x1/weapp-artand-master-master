@@ -1,0 +1,65 @@
+<!--pages/exhibition/exhibition.wxml-->
+<view class="page">
+  <!-- 分类按钮区域 -->
+  <view class="category-buttons">
+    <view class="category-grid">
+      <view 
+        class="category-btn {{item.id === activeCategoryId ? 'active' : ''}}"
+        wx:for="{{categories}}" 
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="switchCategory"
+      >
+        <text class="btn-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 内容区域 -->
+  <scroll-view class="content-scroll" scroll-y bindscrolltolower="loadMore">
+    <!-- 当前分类标题 -->
+    <view class="content-header">
+      <text class="content-title">{{currentCategoryName}}</text>
+      <text class="content-count">共{{currentContent.length}}篇内容</text>
+    </view>
+    
+    <!-- 内容列表 -->
+    <view class="content-list">
+      <view 
+        class="content-item" 
+        wx:for="{{currentContent}}" 
+        wx:key="id"
+        bindtap="goToDetail"
+        data-item="{{item}}"
+      >
+        <image 
+          src="{{item.image}}" 
+          mode="aspectFill" 
+          class="content-img"
+        ></image>
+        <view class="content-info">
+          <text class="content-name">{{item.name}}</text>
+          <text class="content-desc ellipsis-2">{{item.description || '暂无描述'}}</text>
+          <view class="content-footer">
+            <view class="content-stats">
+              <view class="stat">
+                <image src="/images/see.png" class="stat-icon"></image>
+                <text>{{item.viewCount || 0}}</text>
+              </view>
+              <view class="stat">
+                <image src="/images/love.png" class="stat-icon"></image>
+                <text>{{item.likeCount || 0}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 空状态 -->
+    <view wx:if="{{currentContent.length === 0}}" class="empty">
+      <image class="empty-icon" src="/images/class_black.png"></image>
+      <text class="empty-text">该分类暂无内容</text>
+    </view>
+  </scroll-view>
+</view>

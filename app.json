@@ -1,0 +1,58 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/discover/discover",
+    "pages/exhibition/exhibition",
+    "pages/setting/setting",
+    "pages/work-detail/work-detail",
+    "pages/login/login",
+    "pages/register/register",
+    "pages/search/search"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#8B7355",
+    "navigationBarTitleText": "乡村文化传播",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F1E8",
+    "enablePullDownRefresh": true
+  },
+  "tabBar": {
+    "color": "#9B8B7A",
+    "selectedColor": "#8B7355",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/bar_home_black.png",
+        "selectedIconPath": "images/bar_home.png"
+      },
+      {
+        "pagePath": "pages/discover/discover",
+        "text": "发现",
+        "iconPath": "images/bar_explore_black.png",
+        "selectedIconPath": "images/bar_explore.png"
+      },
+      {
+        "pagePath": "pages/exhibition/exhibition",
+        "text": "分类",
+        "iconPath": "images/class_black2.png",
+        "selectedIconPath": "images/class_white.png"
+      },
+      {
+        "pagePath": "pages/setting/setting",
+        "text": "我的",
+        "iconPath": "images/bar_mine_black.png",
+        "selectedIconPath": "images/bar_mine.png"
+      }
+    ]
+  },
+  "usingComponents": {
+    "culture-card": "/components/culture-card/culture-card",
+    "search-bar": "/components/search-bar/search-bar"
+  },
+  "debug": true,
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,126 @@
+/* pages/discover/discover.wxss */
+
+/* 页面头部 */
+.page-header {
+  background: linear-gradient(135deg, #8B7355 0%, #D4A574 100%);
+  padding: 20px 15px;
+  color: #ffffff;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* 分区 */
+.section {
+  margin-bottom: 20px;
+}
+
+.section-header {
+  padding: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2C2416;
+  margin-right: 10px;
+}
+
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, #D4A574, transparent);
+}
+
+/* 图片列表 */
+.img-list {
+  padding: 0 15px;
+}
+
+.img-item {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.discover-image {
+  width: 100%;
+  height: 100%;
+}
+
+.img-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 15px 15px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.5));
+}
+
+/* 统计栏 */
+.stats-bar {
+  display: flex;
+  gap: 15px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.stat-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+}
+
+/* 网格布局 */
+.img-grid {
+  padding: 0 15px;
+}
+
+.grid-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.grid-item {
+  position: relative;
+  width: 48%;
+  height: 150px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.grid-image {
+  width: 100%;
+  height: 100%;
+}
+
+.grid-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px 10px 10px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.5));
+}

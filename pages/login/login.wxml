@@ -1,0 +1,60 @@
+<!--pages/login/login.wxml-->
+<view class="login-container">
+  <!-- 微信授权登录按钮 -->
+  <view class="auth-section" wx:if="{{canIUseGetUserProfile}}">
+    <button 
+      class="wx-auth-btn"
+      bindtap="getUserProfile"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+    >
+      <image src="/images/bar_mine.png" class="wx-icon"></image>
+      微信授权登录
+    </button>
+    <view class="divider">
+      <text>或</text>
+    </view>
+  </view>
+
+  <!-- 手机号/账号登录表单 -->
+  <view class="form-section">
+    <form bindsubmit="formSubmit">
+      <view class="input-group">
+        <image src="/images/class_white.png" class="input-icon"></image>
+        <input 
+          class="input" 
+          name="account" 
+          placeholder="请输入手机号/账号" 
+          placeholder-class="input-placeholder" 
+          type="text"
+        />
+      </view>
+      <view class="input-group">
+        <image src="/images/class_white.png" class="input-icon"></image>
+        <input 
+          class="input" 
+          name="password" 
+          placeholder="请输入密码" 
+          placeholder-class="input-placeholder" 
+          password="true"
+        />
+      </view>
+      <view>
+        <button 
+          formType="submit" 
+          class="login-btn"
+          loading="{{loading}}"
+          disabled="{{loading}}"
+        >
+          登 录
+        </button>
+      </view>
+    </form>
+  </view>
+
+  <view class="footer">
+    <navigator url="/pages/register/register" class="register-link">
+      没有账号？立即注册
+    </navigator>
+  </view>
+</view>

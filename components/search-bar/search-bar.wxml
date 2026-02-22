@@ -1,0 +1,24 @@
+<!-- components/search-bar/search-bar.wxml -->
+<view class="search-bar">
+  <view class="search-container">
+    <image class="search-icon" src="/images/search.png" mode="aspectFit"></image>
+    <input 
+      class="search-input"
+      type="text" 
+      placeholder="{{placeholder}}"
+      value="{{value}}"
+      bindinput="onInput"
+      bindconfirm="onConfirm"
+      confirm-type="search"
+    />
+    <image 
+      wx:if="{{value}}" 
+      class="clear-icon" 
+      src="/images/eye.png" 
+      bindtap="onClear"
+    ></image>
+  </view>
+  <view wx:if="{{showButton}}" class="search-button" bindtap="onConfirm">
+    <text>搜索</text>
+  </view>
+</view>

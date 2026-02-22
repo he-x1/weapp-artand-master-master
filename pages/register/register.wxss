@@ -1,0 +1,105 @@
+/* pages/register/register.wxss */
+.register-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #D4A574 0%, #F5F1E8 100%);
+  padding: 40px 30px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.title {
+  display: block;
+  font-size: 28px;
+  font-weight: bold;
+  color: #2C2416;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  display: block;
+  font-size: 14px;
+  color: #6B5D52;
+}
+
+.form-section {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 30px 20px;
+  box-shadow: 0 8px 24px rgba(139, 115, 85, 0.15);
+}
+
+.input-group {
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.input {
+  width: 100%;
+  height: 48px;
+  background: #F5F1E8;
+  border-radius: 12px;
+  padding: 0 15px;
+  font-size: 15px;
+  color: #2C2416;
+  box-sizing: border-box;
+}
+
+.verification-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.verification-input {
+  flex: 1;
+}
+
+.verification-btn {
+  width: 110px;
+  height: 48px;
+  background: linear-gradient(135deg, #8B7355 0%, #D4A574 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  font-size: 13px;
+  border: none;
+  flex-shrink: 0;
+}
+
+.verification-btn.disabled {
+  background: #C4B5A0;
+  color: #9B8B7A;
+}
+
+.register-btn {
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(135deg, #8B7355 0%, #D4A574 100%);
+  color: #ffffff;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+}
+
+.footer {
+  text-align: left;
+  margin-top: 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  padding-left: 0;
+}
+
+.tip {
+  color: #9B8B7A;
+}
+
+.login-link {
+  color: #8B7355;
+  margin-left: 5px;
+}

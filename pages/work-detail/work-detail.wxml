@@ -1,0 +1,104 @@
+<!--pages/work-detail/work-detail.wxml-->
+<view class="page">
+  <!-- 轮播图区域 -->
+  <swiper 
+    class="banner-swiper" 
+    indicator-dots="true" 
+    autoplay="true" 
+    interval="4000" 
+    duration="600"
+  >
+    <block wx:for="{{swipers}}" wx:key="id">
+      <swiper-item>
+        <image 
+          src="{{item.url}}" 
+          class="slide-image" 
+          mode="aspectFill"
+        />
+      </swiper-item>
+    </block>
+  </swiper>
+
+  <!-- 内容信息 -->
+  <view class="content-section">
+    <view class="content-header">
+      <text class="content-title">{{work.name}}</text>
+      <view class="content-tags">
+        <text class="tag" wx:for="{{work.tags}}" wx:key="index">{{item}}</text>
+      </view>
+    </view>
+
+    <!-- 统计信息 -->
+    <view class="stats-bar">
+      <view class="stat">
+        <image src="/images/see.png" class="stat-icon"></image>
+        <text>{{work.viewCount || 0}} 浏览</text>
+      </view>
+      <view class="stat">
+        <image src="/images/love.png" class="stat-icon"></image>
+        <text>{{likeCount}} 点赞</text>
+      </view>
+      <view class="stat">
+        <image src="/images/collect.png" class="stat-icon"></image>
+        <text>{{collectCount}} 收藏</text>
+      </view>
+    </view>
+
+    <!-- 分类信息 -->
+    <view class="info-item">
+      <text class="info-label">分类：</text>
+      <text class="info-value">{{work.category}}</text>
+    </view>
+
+    <!-- 详细介绍 -->
+    <view class="intro-section">
+      <text class="intro-title">详细介绍</text>
+      <text class="intro-content">{{work.description}}</text>
+    </view>
+
+    <!-- 相关推荐 -->
+    <view class="related-section">
+      <text class="related-title">相关推荐</text>
+      <view class="related-list">
+        <view 
+          class="related-item" 
+          wx:for="{{relatedList}}" 
+          wx:key="id"
+          bindtap="goToDetail"
+          data-id="{{item.id}}"
+        >
+          <image src="{{item.image}}" class="related-image" mode="aspectFill"></image>
+          <text class="related-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="fixed-operation-bar">
+    <button 
+      class="action-btn {{isLiked ? 'active' : ''}}"
+      bindtap="handleLike"
+    >
+      <image 
+        src="{{isLiked ? '/images/loved.png' : '/images/love.png'}}" 
+        class="action-icon"
+      ></image>
+      <text>点赞</text>
+    </button>
+    <button 
+      class="action-btn {{isCollected ? 'active' : ''}}"
+      bindtap="handleCollect"
+    >
+      <image 
+        src="{{isCollected ? '/images/collected.png' : '/images/collect.png'}}" 
+        class="action-icon"
+      ></image>
+      <text>收藏</text>
+    </button>
+    <button class="action-btn" bindtap="handleShare">
+      <image src="/images/class_white.png" class="action-icon"></image>
+      <text>分享</text>
+    </button>
+  </view>
+</view>

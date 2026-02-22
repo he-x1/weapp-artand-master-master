@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "乡村文化传播",
+  "usingComponents": {
+    "culture-card": "/components/culture-card/culture-card",
+    "search-bar": "/components/search-bar/search-bar"
+  },
+  "enablePullDownRefresh": true
+}

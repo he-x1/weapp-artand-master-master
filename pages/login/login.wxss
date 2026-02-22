@@ -1,0 +1,124 @@
+/* pages/login/login.wxss */
+.login-container {
+  padding: 40px 30px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #D4A574 0%, #F5F1E8 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 微信授权按钮区域 */
+.auth-section {
+  margin-bottom: 30px;
+}
+
+.wx-auth-btn {
+  width: 100%;
+  height: 50px;
+  background-color: #07c160;
+  color: #ffffff;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 4px 12px rgba(7, 193, 96, 0.3);
+}
+
+.wx-auth-btn:active {
+  opacity: 0.8;
+}
+
+.wx-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+/* 分割线 */
+.divider {
+  text-align: center;
+  margin: 30px 0;
+  color: #6B5D52;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  display: inline-block;
+  width: 80px;
+  height: 1px;
+  background-color: rgba(107, 93, 82, 0.3);
+  vertical-align: middle;
+  margin: 0 15px;
+}
+
+/* 表单区域 */
+.form-section {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 30px 20px;
+  box-shadow: 0 8px 24px rgba(139, 115, 85, 0.15);
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  background-color: #F5F1E8;
+  border-radius: 12px;
+  padding: 0 15px;
+  margin-bottom: 20px;
+}
+
+.input-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  opacity: 0.5;
+}
+
+.input {
+  flex: 1;
+  height: 48px;
+  font-size: 15px;
+  color: #2C2416;
+}
+
+.input-placeholder {
+  color: #9B8B7A;
+}
+
+.login-btn {
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(135deg, #8B7355 0%, #D4A574 100%);
+  color: #ffffff;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  box-shadow: 0 4px 12px rgba(139, 115, 85, 0.4);
+  margin-top: 10px;
+}
+
+.login-btn:active {
+  opacity: 0.9;
+  transform: translateY(1px);
+}
+
+/* 底部链接 */
+.footer {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.register-link {
+  color: #8B7355;
+  font-size: 14px;
+  text-decoration: underline;
+}
