@@ -46,19 +46,26 @@ Page({
   // 加载用户统计数据
   loadUserStats: async function() {
     try {
-      // TODO: 从后端获取真实数据
-      // const res = await apiService.getUserStats()
+      // 并行获取点赞、收藏、浏览历史的统计
+      const [likesRes, collectsRes, historyRes] = await Promise.all([
+        apiService.getLikes(1, 1),
+        apiService.getCollects(1, 1),
+        apiService.getHistory(1, 1)
+      ])
       
-      // 模拟数据
+      const likesCount = likesRes.code === 0 ? likesRes.data.total : 0
+      const collectsCount = collectsRes.code === 0 ? collectsRes.data.total : 0
+      const historyCount = historyRes.code === 0 ? historyRes.data.total : 0
+      
       this.setData({
         stats: {
-          likes: 12,
-          collects: 8,
-          history: 25
+          likes: likesCount,
+          collects: collectsCount,
+          history: historyCount
         },
-        'menuItems[0].count': 12,
-        'menuItems[1].count': 8,
-        'menuItems[2].count': 25
+        'menuItems[0].count': likesCount,
+        'menuItems[1].count': collectsCount,
+        'menuItems[2].count': historyCount
       })
     } catch (err) {
       console.error('加载统计数据失败：', err)
@@ -90,13 +97,19 @@ Page({
 
     switch(menuId) {
       case 'mylikes':
-        wx.showToast({ title: '功能开发中', icon: 'none' })
+        wx.navigateTo({
+          url: '/pages/exhibition/exhibition?type=likes&title=我的点赞'
+        })
         break
       case 'mycollects':
-        wx.showToast({ title: '功能开发中', icon: 'none' })
+        wx.navigateTo({
+          url: '/pages/exhibition/exhibition?type=collects&title=我的收藏'
+        })
         break
       case 'history':
-        wx.showToast({ title: '功能开发中', icon: 'none' })
+        wx.navigateTo({
+          url: '/pages/exhibition/exhibition?type=history&title=浏览历史'
+        })
         break
       case 'about':
         wx.showModal({

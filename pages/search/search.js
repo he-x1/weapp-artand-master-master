@@ -8,7 +8,10 @@ Page({
     hotKeywords: ['年画', '皮影戏', '剪纸', '陶瓷', '刺绣', '戏曲'],
     results: [],
     showResults: false,
-    loading: false
+    loading: false,
+    page: 1,
+    hasMore: true,
+    total: 0
   },
 
   onLoad: function(options) {
@@ -38,26 +41,55 @@ Page({
 
   onSearch: function() {
     const keyword = this.data.keyword.trim()
-    if (keyword) this.doSearch(keyword)
+    if (keyword) {
+      this.setData({ page: 1, results: [], hasMore: true })
+      this.doSearch(keyword)
+    }
   },
 
-  doSearch: async function(keyword) {
+  doSearch: async function(keyword, isLoadMore = false) {
+    if (this.data.loading) return
+    
     this.setData({ loading: true, showResults: true })
+    
     try {
-      const res = await apiService.search(keyword)
+      const page = isLoadMore ? this.data.page : 1
+      const res = await apiService.search(keyword, page)
+      
       if (res.code === 0) {
-        this.setData({ results: res.data })
-        this.saveHistory(keyword)
+        const newResults = res.data.list || res.data || []
+        const results = isLoadMore ? [...this.data.results, ...newResults] : newResults
+        
+        this.setData({
+          results: results,
+          total: res.data.total || results.length,
+          hasMore: res.data.hasMore !== false,
+          page: page + 1
+        })
+        
+        if (!isLoadMore) {
+          this.saveHistory(keyword)
+        }
       }
     } catch (err) {
       console.error('搜索失败：', err)
+      wx.showToast({
+        title: '搜索失败',
+        icon: 'none'
+      })
     } finally {
       this.setData({ loading: false })
     }
   },
 
   clearKeyword: function() {
-    this.setData({ keyword: '', showResults: false, results: [] })
+    this.setData({ 
+      keyword: '', 
+      showResults: false, 
+      results: [],
+      page: 1,
+      hasMore: true
+    })
   },
 
   cancelSearch: function() {
@@ -66,13 +98,13 @@ Page({
 
   searchHistory: function(e) {
     const keyword = e.currentTarget.dataset.keyword
-    this.setData({ keyword })
+    this.setData({ keyword, page: 1, results: [] })
     this.doSearch(keyword)
   },
 
   searchHot: function(e) {
     const keyword = e.currentTarget.dataset.keyword
-    this.setData({ keyword })
+    this.setData({ keyword, page: 1, results: [] })
     this.doSearch(keyword)
   },
 
@@ -92,5 +124,12 @@ Page({
   goToDetail: function(e) {
     const item = e.currentTarget.dataset.item
     wx.navigateTo({ url: `/pages/work-detail/work-detail?id=${item.id}` })
+  },
+
+  // 触底加载更多
+  onReachBottom: function() {
+    if (this.data.hasMore && !this.data.loading && this.data.keyword) {
+      this.doSearch(this.data.keyword, true)
+    }
   }
 })

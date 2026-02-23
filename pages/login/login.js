@@ -1,6 +1,6 @@
 // pages/login/login.js
 var app = getApp()
-var api = require('../../utils/api.js')
+var apiService = require('../../utils/apiService.js')
 
 Page({
   data: {
@@ -29,22 +29,45 @@ Page({
         
         // 获取登录code
         wx.login({
-          success: function(loginRes) {
+          success: async function(loginRes) {
             if (loginRes.code) {
-              // TODO: 将code和userInfo发送到后端进行登录
-              // 目前模拟登录成功
-              const mockToken = 'mock_token_' + Date.now()
-              app.setUserInfo(res.userInfo, mockToken)
-              
-              wx.showToast({
-                title: '登录成功',
-                icon: 'success',
-                duration: 2000
-              })
-              
-              setTimeout(function() {
-                wx.navigateBack()
-              }, 2000)
+              try {
+                // 调用后端微信登录接口
+                const result = await apiService.wxLogin(loginRes.code)
+                
+                if (result.code === 0) {
+                  // 合并用户信息
+                  const userInfo = {
+                    ...result.data.userInfo,
+                    ...res.userInfo
+                  }
+                  
+                  app.setUserInfo(userInfo, result.data.token)
+                  
+                  wx.showToast({
+                    title: '登录成功',
+                    icon: 'success',
+                    duration: 2000
+                  })
+                  
+                  setTimeout(function() {
+                    wx.navigateBack()
+                  }, 2000)
+                } else {
+                  wx.showToast({
+                    title: result.message || '登录失败',
+                    icon: 'none',
+                    duration: 2000
+                  })
+                }
+              } catch (err) {
+                console.error('微信登录失败：', err)
+                wx.showToast({
+                  title: '登录失败',
+                  icon: 'none',
+                  duration: 2000
+                })
+              }
             } else {
               console.error('登录失败：' + loginRes.errMsg)
               wx.showToast({
@@ -70,7 +93,7 @@ Page({
   },
 
   // 表单提交（手机号登录）
-  formSubmit: function(e) {
+  formSubmit: async function(e) {
     var that = this
     var formData = e.detail.value
     
@@ -85,43 +108,39 @@ Page({
 
     that.setData({ loading: true })
 
-    // TODO: 对接后端登录接口
-    // api.post(api.LOGIN, formData).then(res => {
-    //   if (res.data.code === 200) {
-    //     app.setUserInfo(res.data.userInfo, res.data.token)
-    //     wx.showToast({ title: '登录成功', icon: 'success' })
-    //     setTimeout(() => { wx.navigateBack() }, 2000)
-    //   } else {
-    //     wx.showToast({ title: res.data.message, icon: 'none' })
-    //   }
-    //   that.setData({ loading: false })
-    // }).catch(err => {
-    //   console.error('登录失败：', err)
-    //   wx.showToast({ title: '登录失败', icon: 'none' })
-    //   that.setData({ loading: false })
-    // })
-
-    // 模拟登录成功
-    setTimeout(function() {
-      const mockUserInfo = {
-        nickName: formData.account,
-        avatarUrl: '/images/avatar.jpg'
-      }
-      const mockToken = 'mock_token_' + Date.now()
-      app.setUserInfo(mockUserInfo, mockToken)
+    try {
+      // 调用后端登录接口
+      const result = await apiService.login(formData.account, formData.password)
       
+      if (result.code === 0) {
+        app.setUserInfo(result.data.userInfo, result.data.token)
+        
+        wx.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 2000
+        })
+        
+        setTimeout(function() {
+          wx.navigateBack()
+        }, 2000)
+      } else {
+        wx.showToast({
+          title: result.message || '登录失败',
+          icon: 'none',
+          duration: 2000
+        })
+      }
+    } catch (err) {
+      console.error('登录失败：', err)
       wx.showToast({
-        title: '登录成功',
-        icon: 'success',
+        title: '登录失败',
+        icon: 'none',
         duration: 2000
       })
-      
-      setTimeout(function() {
-        wx.navigateBack()
-      }, 2000)
-      
+    } finally {
       that.setData({ loading: false })
-    }, 1000)
+    }
   },
 
   // 跳转到注册页

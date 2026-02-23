@@ -5,46 +5,15 @@ var apiService = require('../../utils/apiService.js')
 Page({
   data: {
     systemInfo: {},
-    categories: [
-      { id: 1, name: '传统手工', count: 45 },
-      { id: 2, name: '表演艺术', count: 23 },
-      { id: 3, name: '生产技艺', count: 18 },
-      { id: 4, name: '风物传说', count: 32 },
-      { id: 5, name: '人物传说', count: 28 },
-      { id: 6, name: '节庆习俗', count: 15 },
-      { id: 7, name: '民间文学', count: 36 }
-    ],
-    categoryContents: {
-      1: [
-        { id: 101, name: '年画', category: '传统手工', image: '/images/New_Year_pictures.png', viewCount: 128, likeCount: 36, description: '年画是中国画的一种，始于古代的“门神画”，中国民间艺术之一。' },
-        { id: 102, name: '剪纸', category: '传统手工', image: '/images/Cookie_cutter.png', viewCount: 210, likeCount: 58, description: '中国剪纸是一种用剪刀或刻刀在纸上剪刻花纹的民间艺术。' },
-        { id: 103, name: '印章', category: '传统手工', image: '/images/stamp.png', viewCount: 89, likeCount: 27, description: '篆刻艺术，是书法和镌刻结合来制作印章的艺术。' },
-        { id: 104, name: '蜡染', category: '传统手工', image: '/images/candle.png', viewCount: 165, likeCount: 63, description: '蜡染是我国古老的少数民族民间传统纺织印染手工艺。' },
-        { id: 105, name: '彩碟', category: '传统手工', image: '/images/plate.png', viewCount: 95, likeCount: 24, description: '彩碟是一种传统的民间手工艺品，以精美的图案和独特的工艺著称。' }
-      ],
-      2: [
-        { id: 201, name: '皮影戏', category: '表演艺术', image: '/images/Shadow_puppetry.png', viewCount: 143, likeCount: 42, description: '皮影戏是中国民间古老的传统艺术，始于西汉，兴于唐朝，盛于清代。' },
-        { id: 202, name: '戏曲', category: '表演艺术', image: '/images/cup.png', viewCount: 76, likeCount: 15, description: '中国传统戏曲是包含文学、音乐、舞蹈、美术、武术、杂技的综合艺术。' }
-      ],
-      3: [
-        { id: 301, name: '陶瓷技艺', category: '生产技艺', image: '/images/cup.png', viewCount: 98, likeCount: 32, description: '陶瓷是陶器和瓷器的总称，中国人早在新石器时代就发明了陶器。' }
-      ],
-      4: [
-        { id: 401, name: '民间传说', category: '风物传说', image: '/images/discover/image_preson@2x.png', viewCount: 156, likeCount: 45, description: '民间传说是民间文学的一种重要形式，反映了劳动人民的愿望和要求。' }
-      ],
-      5: [
-        { id: 501, name: '历史人物', category: '人物传说', image: '/images/discover/image_read@2x.png', viewCount: 112, likeCount: 38, description: '历史人物传说是对历史人物的生平事迹进行艺术加工的传说故事。' }
-      ],
-      6: [
-        { id: 601, name: '春节习俗', category: '节庆习俗', image: '/images/New_Year_pictures.png', viewCount: 234, likeCount: 78, description: '春节是中国最富有特色的传统节日，有着丰富的文化内涵。' }
-      ],
-      7: [
-        { id: 701, name: '民歌民谣', category: '民间文学', image: '/images/discover/image_appreciate@2x.png', viewCount: 145, likeCount: 52, description: '民歌民谣是人民群众在生活实践中创作的诗歌，具有鲜明的民族特色。' }
-      ]
-    },
-    activeCategoryId: 1,
+    categories: [],
+    activeCategoryId: null,
     currentContent: [],
-    currentCategoryName: '传统手工'
+    currentCategoryName: '',
+    loading: false,
+    page: 1,
+    hasMore: true,
+    type: 'category', // category, likes, collects, history
+    title: ''
   },
 
   onLoad: function (options) {
@@ -57,24 +26,98 @@ Page({
       })
     })
 
-    // 如果有传入分类ID
-    if (options.categoryId) {
-      const categoryId = parseInt(options.categoryId)
-      const category = this.data.categories.find(c => c.id === categoryId)
+    // 根据参数决定加载类型
+    if (options.type) {
+      const type = options.type
+      const title = options.title || ''
+      
       this.setData({
-        activeCategoryId: categoryId,
-        currentCategoryName: category ? category.name : '传统手工'
+        type: type,
+        title: title
+      })
+      
+      // 设置页面标题
+      if (title) {
+        wx.setNavigationBarTitle({ title: title })
+      }
+      
+      // 加载对应类型的数据
+      this.loadDataByType(type)
+    } else if (options.categoryId) {
+      // 分类浏览模式
+      const categoryId = parseInt(options.categoryId)
+      this.setData({
+        type: 'category',
+        activeCategoryId: categoryId
+      })
+      this.loadCategories().then(() => {
+        this.loadCategoryContent(categoryId)
+      })
+    } else {
+      // 默认加载所有分类
+      this.loadCategories().then(() => {
+        if (this.data.categories.length > 0) {
+          this.setData({ activeCategoryId: this.data.categories[0].id })
+          this.loadCategoryContent(this.data.categories[0].id)
+        }
       })
     }
+  },
 
-    // 初始化显示第一个分类的内容
-    this.setData({
-      currentContent: this.data.categoryContents[this.data.activeCategoryId]
-    })
+  // 根据类型加载数据
+  loadDataByType: async function(type) {
+    this.setData({ loading: true })
     
-    // TODO: 从后端加载真实数据
-    // this.loadCategories()
-    // this.loadCategoryContent(this.data.activeCategoryId)
+    try {
+      let res
+      let contentList = []
+      
+      switch(type) {
+        case 'likes':
+          res = await apiService.getLikes(this.data.page)
+          if (res.code === 0) {
+            contentList = res.data.list || []
+          }
+          break
+          
+        case 'collects':
+          res = await apiService.getCollects(this.data.page)
+          if (res.code === 0) {
+            contentList = res.data.list || []
+          }
+          break
+          
+        case 'history':
+          res = await apiService.getHistory(this.data.page)
+          if (res.code === 0) {
+            contentList = res.data.list || []
+          }
+          break
+          
+        default:
+          // 分类模式
+          await this.loadCategories()
+          if (this.data.categories.length > 0) {
+            this.setData({ activeCategoryId: this.data.categories[0].id })
+            await this.loadCategoryContent(this.data.categories[0].id)
+          }
+          return
+      }
+      
+      this.setData({
+        currentContent: contentList,
+        hasMore: res.data ? res.data.hasMore !== false : false,
+        loading: false
+      })
+      
+    } catch (err) {
+      console.error('加载数据失败：', err)
+      this.setData({ loading: false })
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      })
+    }
   },
 
   // 搜索
@@ -102,49 +145,119 @@ Page({
   },
 
   // 加载分类内容
-  loadCategoryContent: async function(categoryId) {
+  loadCategoryContent: async function(categoryId, isLoadMore = false) {
+    if (this.data.loading) return
+    
+    this.setData({ loading: true })
+    
     try {
-      const res = await apiService.getByCategory(categoryId)
+      const category = this.data.categories.find(c => c.id === categoryId)
+      const page = isLoadMore ? this.data.page : 1
+      
+      const res = await apiService.getByCategory(categoryId, page)
       if (res.code === 0) {
+        const newContent = res.data.list || []
+        const currentContent = isLoadMore 
+          ? [...this.data.currentContent, ...newContent]
+          : newContent
+        
         this.setData({
-          currentContent: res.data
+          currentContent: currentContent,
+          currentCategoryName: category ? category.name : '',
+          activeCategoryId: categoryId,
+          hasMore: res.data.hasMore !== false,
+          page: page + 1,
+          loading: false
         })
       }
     } catch (err) {
       console.error('加载分类内容失败：', err)
+      this.setData({ loading: false })
     }
   },
 
   // 切换分类
   switchCategory: function(e) {
     const categoryId = e.currentTarget.dataset.id
-    const category = this.data.categories.find(c => c.id === categoryId)
     
+    // 重置页码
     this.setData({
-      activeCategoryId: categoryId,
-      currentContent: this.data.categoryContents[categoryId],
-      currentCategoryName: category ? category.name : '传统手工'
+      page: 1,
+      hasMore: true
     })
     
-    // TODO: 从后端加载
-    // this.loadCategoryContent(categoryId)
+    this.loadCategoryContent(categoryId)
   },
 
   // 加载更多
   loadMore: function() {
-    console.log('触发加载更多')
-    // TODO: 实现加载更多逻辑
+    if (this.data.type === 'category') {
+      if (this.data.hasMore && !this.data.loading) {
+        this.loadCategoryContent(this.data.activeCategoryId, true)
+      }
+    } else {
+      if (this.data.hasMore && !this.data.loading) {
+        this.loadMoreByType()
+      }
+    }
+  },
+
+  // 加载更多（点赞/收藏/历史）
+  loadMoreByType: async function() {
+    this.setData({ loading: true })
+    
+    try {
+      let res
+      
+      switch(this.data.type) {
+        case 'likes':
+          res = await apiService.getLikes(this.data.page)
+          break
+        case 'collects':
+          res = await apiService.getCollects(this.data.page)
+          break
+        case 'history':
+          res = await apiService.getHistory(this.data.page)
+          break
+      }
+      
+      if (res && res.code === 0) {
+        const newContent = res.data.list || []
+        this.setData({
+          currentContent: [...this.data.currentContent, ...newContent],
+          hasMore: res.data.hasMore !== false,
+          page: this.data.page + 1,
+          loading: false
+        })
+      }
+    } catch (err) {
+      console.error('加载更多失败：', err)
+      this.setData({ loading: false })
+    }
   },
 
   // 跳转到详情
   goToDetail: function(e) {
     const item = e.currentTarget.dataset.item
     wx.navigateTo({
-      url: `/pages/work-detail/work-detail?id=${item.id}&name=${item.name}`
+      url: `/pages/work-detail/work-detail?id=${item.id}`
     })
   },
 
+  // 触底加载更多
+  onReachBottom: function() {
+    this.loadMore()
+  },
+
   onPullDownRefresh: function () {
+    this.setData({ page: 1, hasMore: true })
+    
+    if (this.data.type === 'category') {
+      this.loadCategoryContent(this.data.activeCategoryId)
+    } else {
+      this.loadDataByType(this.data.type)
+    }
+    
     wx.stopPullDownRefresh()
   }
 })

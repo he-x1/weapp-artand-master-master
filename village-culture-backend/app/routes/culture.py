@@ -56,10 +56,28 @@ def get_detail(id):
 def search():
     try:
         keyword = request.args.get('keyword', '')
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('pageSize', 20, type=int)
+        
         if not keyword:
             return jsonify({'code': 400, 'message': '关键词不能为空'}), 400
-        results = Culture.query.filter(Culture.status == 1, or_(Culture.name.contains(keyword), Culture.description.contains(keyword))).order_by(Culture.score.desc()).all()
-        return jsonify({'code': 0, 'message': 'success', 'data': [item.to_dict() for item in results]})
+        
+        # 分页搜索
+        query = Culture.query.filter(
+            Culture.status == 1, 
+            or_(Culture.name.contains(keyword), Culture.description.contains(keyword))
+        ).order_by(Culture.score.desc())
+        
+        pagination = query.paginate(page=page, per_page=page_size, error_out=False)
+        
+        result = {
+            'list': [item.to_dict() for item in pagination.items],
+            'total': pagination.total,
+            'page': page,
+            'pageSize': page_size,
+            'hasMore': pagination.has_next
+        }
+        return jsonify({'code': 0, 'message': 'success', 'data': result})
     except Exception as e:
         logger.error(f'搜索失败: {str(e)}')
         return jsonify({'code': 500, 'message': '搜索失败'}), 500
@@ -84,3 +102,42 @@ def get_by_category(category_id):
     except Exception as e:
         logger.error(f'获取分类内容失败: {str(e)}')
         return jsonify({'code': 500, 'message': '获取失败'}), 500
+
+# 新增：刷新内容（重新爬取数据）
+@culture_bp.route('/content/refresh', methods=['POST'])
+def refresh_content():
+    """刷新内容数据"""
+    try:
+        from scripts.crawler import CultureCrawler
+        from scripts.import_data import import_to_database
+        import os
+        
+        # 获取项目根目录
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        upload_folder = os.path.join(project_root, 'uploads')
+        
+        # 执行爬虫
+        crawler = CultureCrawler(upload_folder=upload_folder)
+        data_list = crawler.crawl_all()
+        
+        if data_list:
+            # 导入数据库
+            imported = import_to_database(data_list)
+            
+            # 更新推荐系统分数
+            from app.services.recommender import recommender
+            recommender.update_scores()
+            
+            return jsonify({
+                'code': 0, 
+                'message': 'success',
+                'data': {
+                    'crawled': len(data_list),
+                    'imported': imported
+                }
+            })
+        else:
+            return jsonify({'code': 0, 'message': '没有新数据', 'data': {'crawled': 0, 'imported': 0}})
+    except Exception as e:
+        logger.error(f'刷新内容失败: {str(e)}')
+        return jsonify({'code': 500, 'message': '刷新失败'}), 500

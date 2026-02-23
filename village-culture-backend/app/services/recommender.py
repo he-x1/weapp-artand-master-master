@@ -1,5 +1,3 @@
-
-# village-culture-backend/app/services/recommender.py
 """
 个性化推荐系统
 基于协同过滤和内容特征的混合推荐算法
@@ -7,6 +5,7 @@
 from app.models import db, User, Culture, UserBehavior, Like, Collect, ViewHistory
 from sqlalchemy import func, and_
 from collections import defaultdict
+from datetime import datetime
 import numpy as np
 from loguru import logger
 
@@ -126,7 +125,7 @@ class RecommenderSystem:
         for behavior in user_behaviors:
             culture = Culture.query.get(behavior.culture_id)
             if culture:
-                weight_map = {'view': 1.0, 'like': 2.0, 'collect': 3.0}
+                weight_map = {'view': 1.0, 'like': 2.0, 'collect': 3.0, 'share': 4.0}
                 weight = weight_map.get(behavior.behavior_type, 1.0)
                 category_preferences[culture.category_id] += weight
 

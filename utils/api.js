@@ -91,7 +91,8 @@ const API = {
     GET_DETAIL: '/content/detail',
     SEARCH: '/content/search',
     GET_CATEGORIES: '/content/categories',
-    GET_BY_CATEGORY: '/content/category'
+    GET_BY_CATEGORY: '/content/category',
+    REFRESH: '/content/refresh'  // 新增刷新接口
   },
 
   INTERACTION: {
@@ -102,13 +103,16 @@ const API = {
     GET_LIKES: '/interaction/likes',
     GET_COLLECTS: '/interaction/collects',
     GET_HISTORY: '/interaction/history',
-    ADD_HISTORY: '/interaction/add-history'
+    ADD_HISTORY: '/interaction/add-history',
+    GET_STATUS: '/interaction/status'  // 新增获取互动状态接口
   },
 
   RECOMMEND: {
     GET_PERSONAL: '/recommend/personal',
     UPDATE_PREFERENCE: '/recommend/preference',
-    GET_HOT: '/recommend/hot'
+    GET_HOT: '/recommend/hot',
+    GET_SIMILAR: '/recommend/similar',  // 新增相似推荐接口
+    REFRESH: '/recommend/refresh'  // 新增刷新推荐接口
   }
 }
 

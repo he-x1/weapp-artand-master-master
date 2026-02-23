@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app
 from app.models import db, Culture, Category
-from crawler import CultureCrawler
+from scripts.crawler import CultureCrawler
 from loguru import logger
 import json
 
@@ -78,8 +78,12 @@ def main():
     """主函数"""
     logger.info('🚀 开始爬取数据...')
 
+    # 获取项目根目录
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    upload_folder = os.path.join(project_root, 'uploads')
+    
     # 1. 爬取数据
-    crawler = CultureCrawler(upload_folder='../uploads')
+    crawler = CultureCrawler(upload_folder=upload_folder)
     data_list = crawler.crawl_all()
 
     if not data_list:
@@ -89,7 +93,8 @@ def main():
     logger.info(f'📊 共爬取 {len(data_list)} 条数据')
 
     # 2. 保存原始数据
-    with open('crawled_data.json', 'w', encoding='utf-8') as f:
+    data_file = os.path.join(project_root, 'crawled_data.json')
+    with open(data_file, 'w', encoding='utf-8') as f:
         json.dump(data_list, f, ensure_ascii=False, indent=2)
     logger.info('💾 数据已保存到 crawled_data.json')
 

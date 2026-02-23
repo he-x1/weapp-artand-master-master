@@ -156,11 +156,11 @@ class ApiService {
   /**
    * 搜索内容
    */
-  async search(keyword) {
+  async search(keyword, page = 1, pageSize = config.PAGE_SIZE) {
     if (this.useMock) {
       return await mockApi.search(keyword)
     }
-    return await api.get(api.API.CONTENT.SEARCH, { keyword })
+    return await api.get(api.API.CONTENT.SEARCH, { keyword, page, pageSize })
   }
 
   /**
@@ -181,6 +181,20 @@ class ApiService {
       return await mockApi.getByCategory(categoryId)
     }
     return await api.get(api.API.CONTENT.GET_BY_CATEGORY + '/' + categoryId, { page, pageSize })
+  }
+
+  /**
+   * 刷新内容（重新爬取数据）
+   */
+  async refreshContent() {
+    if (this.useMock) {
+      return {
+        code: 0,
+        message: 'success',
+        data: { crawled: 15, imported: 5 }
+      }
+    }
+    return await api.post(api.API.CONTENT.REFRESH)
   }
 
   // ===== 互动相关接口 =====
@@ -277,16 +291,30 @@ class ApiService {
     return await api.get(api.API.INTERACTION.GET_HISTORY, { page, pageSize })
   }
 
+  /**
+   * 获取互动状态
+   */
+  async getInteractionStatus(cultureId) {
+    if (this.useMock) {
+      return {
+        code: 0,
+        message: 'success',
+        data: { isLiked: false, isCollected: false }
+      }
+    }
+    return await api.get(api.API.INTERACTION.GET_STATUS + '/' + cultureId)
+  }
+
   // ===== 智能推荐相关接口 =====
 
   /**
    * 获取个性化推荐
    */
-  async getPersonalRecommend() {
+  async getPersonalRecommend(pageSize = 10) {
     if (this.useMock) {
-      return await mockApi.getRecommend(1, 5)
+      return await mockApi.getRecommend(1, pageSize)
     }
-    return await api.get(api.API.RECOMMEND.GET_PERSONAL)
+    return await api.get(api.API.RECOMMEND.GET_PERSONAL, { pageSize })
   }
 
   /**
@@ -302,11 +330,35 @@ class ApiService {
   /**
    * 获取热门推荐
    */
-  async getHotRecommend() {
+  async getHotRecommend(limit = 10) {
     if (this.useMock) {
-      return await mockApi.getRecommend(1, 10)
+      return await mockApi.getRecommend(1, limit)
     }
-    return await api.get(api.API.RECOMMEND.GET_HOT)
+    return await api.get(api.API.RECOMMEND.GET_HOT, { limit })
+  }
+
+  /**
+   * 获取相似内容推荐
+   */
+  async getSimilarRecommend(cultureId, limit = 5) {
+    if (this.useMock) {
+      return await mockApi.getRecommend(1, limit)
+    }
+    return await api.get(api.API.RECOMMEND.GET_SIMILAR + '/' + cultureId, { limit })
+  }
+
+  /**
+   * 刷新推荐系统
+   */
+  async refreshRecommendations() {
+    if (this.useMock) {
+      return {
+        code: 0,
+        message: 'success',
+        data: []
+      }
+    }
+    return await api.post(api.API.RECOMMEND.REFRESH)
   }
 }
 

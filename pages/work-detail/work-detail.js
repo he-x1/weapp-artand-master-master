@@ -32,6 +32,13 @@ Page({
     })
   },
 
+  onShow: function() {
+    // 每次显示页面时检查用户互动状态
+    if (app.globalData.isLoggedIn && this.data.workId) {
+      this.loadInteractionStatus(this.data.workId)
+    }
+  },
+
   // 加载内容详情
   loadDetail: async function(id) {
     try {
@@ -59,6 +66,11 @@ Page({
         
         // 记录浏览历史
         this.addHistory(id)
+        
+        // 加载用户互动状态
+        if (app.globalData.isLoggedIn) {
+          this.loadInteractionStatus(id)
+        }
       }
     } catch (err) {
       console.error('加载详情失败：', err)
@@ -69,15 +81,29 @@ Page({
     }
   },
 
+  // 加载用户互动状态
+  loadInteractionStatus: async function(id) {
+    try {
+      const res = await apiService.getInteractionStatus(id)
+      if (res.code === 0) {
+        this.setData({
+          isLiked: res.data.isLiked,
+          isCollected: res.data.isCollected
+        })
+      }
+    } catch (err) {
+      console.error('加载互动状态失败：', err)
+    }
+  },
+
   // 加载相关推荐
   loadRelated: async function(categoryId) {
     try {
-      const res = await apiService.getByCategory(categoryId)
+      // 使用相似推荐接口
+      const res = await apiService.getSimilarRecommend(this.data.workId, 5)
       if (res.code === 0) {
-        // 过滤掉当前内容，最多显示5个
-        const related = res.data
-          .filter(item => item.id !== parseInt(this.data.workId))
-          .slice(0, 5)
+        // 过滤掉当前内容
+        const related = res.data.filter(item => item.id !== parseInt(this.data.workId))
         
         this.setData({
           relatedList: related
@@ -85,6 +111,21 @@ Page({
       }
     } catch (err) {
       console.error('加载相关推荐失败：', err)
+      // 如果相似推荐失败，尝试按分类加载
+      try {
+        const res = await apiService.getByCategory(categoryId)
+        if (res.code === 0) {
+          const related = res.data.list
+            .filter(item => item.id !== parseInt(this.data.workId))
+            .slice(0, 5)
+          
+          this.setData({
+            relatedList: related
+          })
+        }
+      } catch (e) {
+        console.error('按分类加载也失败：', e)
+      }
     }
   },
 
@@ -121,7 +162,7 @@ Page({
         if (res.code === 0) {
           this.setData({
             isLiked: false,
-            likeCount: likeCount - 1
+            likeCount: res.data.likeCount || (likeCount - 1)
           })
         }
       } else {
@@ -130,12 +171,16 @@ Page({
         if (res.code === 0) {
           this.setData({
             isLiked: true,
-            likeCount: likeCount + 1
+            likeCount: res.data.likeCount || (likeCount + 1)
           })
         }
       }
     } catch (err) {
       console.error('点赞操作失败：', err)
+      wx.showToast({
+        title: '操作失败',
+        icon: 'none'
+      })
     }
   },
 
@@ -161,7 +206,7 @@ Page({
         if (res.code === 0) {
           this.setData({
             isCollected: false,
-            collectCount: collectCount - 1
+            collectCount: res.data.collectCount || (collectCount - 1)
           })
           wx.showToast({
             title: '已取消收藏',
@@ -174,7 +219,7 @@ Page({
         if (res.code === 0) {
           this.setData({
             isCollected: true,
-            collectCount: collectCount + 1
+            collectCount: res.data.collectCount || (collectCount + 1)
           })
           wx.showToast({
             title: '收藏成功',
@@ -184,6 +229,10 @@ Page({
       }
     } catch (err) {
       console.error('收藏操作失败：', err)
+      wx.showToast({
+        title: '操作失败',
+        icon: 'none'
+      })
     }
   },
 

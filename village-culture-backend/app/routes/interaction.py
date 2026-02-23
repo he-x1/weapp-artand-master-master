@@ -116,3 +116,139 @@ def add_history():
         db.session.rollback()
         logger.error(f'记录浏览历史失败: {str(e)}')
         return jsonify({'code': 500, 'message': '操作失败'}), 500
+
+# 新增：获取用户点赞列表
+@interaction_bp.route('/interaction/likes', methods=['GET'])
+@jwt_required()
+def get_likes():
+    try:
+        user_id = get_jwt_identity()
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('pageSize', 20, type=int)
+        
+        # 查询用户点赞记录
+        likes_query = Like.query.filter_by(user_id=user_id).order_by(Like.created_at.desc())
+        pagination = likes_query.paginate(page=page, per_page=page_size, error_out=False)
+        
+        # 获取对应的文化内容
+        culture_ids = [like.culture_id for like in pagination.items]
+        cultures = Culture.query.filter(Culture.id.in_(culture_ids)).all()
+        culture_dict = {c.id: c for c in cultures}
+        
+        result_list = []
+        for like in pagination.items:
+            culture = culture_dict.get(like.culture_id)
+            if culture:
+                item = culture.to_dict()
+                item['likedAt'] = like.created_at.strftime('%Y-%m-%d %H:%M:%S') if like.created_at else None
+                result_list.append(item)
+        
+        result = {
+            'list': result_list,
+            'total': pagination.total,
+            'page': page,
+            'pageSize': page_size,
+            'hasMore': pagination.has_next
+        }
+        return jsonify({'code': 0, 'message': 'success', 'data': result})
+    except Exception as e:
+        logger.error(f'获取点赞列表失败: {str(e)}')
+        return jsonify({'code': 500, 'message': '获取失败'}), 500
+
+# 新增：获取用户收藏列表
+@interaction_bp.route('/interaction/collects', methods=['GET'])
+@jwt_required()
+def get_collects():
+    try:
+        user_id = get_jwt_identity()
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('pageSize', 20, type=int)
+        
+        # 查询用户收藏记录
+        collects_query = Collect.query.filter_by(user_id=user_id).order_by(Collect.created_at.desc())
+        pagination = collects_query.paginate(page=page, per_page=page_size, error_out=False)
+        
+        # 获取对应的文化内容
+        culture_ids = [collect.culture_id for collect in pagination.items]
+        cultures = Culture.query.filter(Culture.id.in_(culture_ids)).all()
+        culture_dict = {c.id: c for c in cultures}
+        
+        result_list = []
+        for collect in pagination.items:
+            culture = culture_dict.get(collect.culture_id)
+            if culture:
+                item = culture.to_dict()
+                item['collectedAt'] = collect.created_at.strftime('%Y-%m-%d %H:%M:%S') if collect.created_at else None
+                result_list.append(item)
+        
+        result = {
+            'list': result_list,
+            'total': pagination.total,
+            'page': page,
+            'pageSize': page_size,
+            'hasMore': pagination.has_next
+        }
+        return jsonify({'code': 0, 'message': 'success', 'data': result})
+    except Exception as e:
+        logger.error(f'获取收藏列表失败: {str(e)}')
+        return jsonify({'code': 500, 'message': '获取失败'}), 500
+
+# 新增：获取用户浏览历史
+@interaction_bp.route('/interaction/history', methods=['GET'])
+@jwt_required()
+def get_history():
+    try:
+        user_id = get_jwt_identity()
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('pageSize', 20, type=int)
+        
+        # 查询用户浏览历史
+        history_query = ViewHistory.query.filter_by(user_id=user_id).order_by(ViewHistory.created_at.desc())
+        pagination = history_query.paginate(page=page, per_page=page_size, error_out=False)
+        
+        # 获取对应的文化内容
+        culture_ids = [h.culture_id for h in pagination.items]
+        cultures = Culture.query.filter(Culture.id.in_(culture_ids)).all()
+        culture_dict = {c.id: c for c in cultures}
+        
+        result_list = []
+        for history in pagination.items:
+            culture = culture_dict.get(history.culture_id)
+            if culture:
+                item = culture.to_dict()
+                item['viewedAt'] = history.created_at.strftime('%Y-%m-%d %H:%M:%S') if history.created_at else None
+                result_list.append(item)
+        
+        result = {
+            'list': result_list,
+            'total': pagination.total,
+            'page': page,
+            'pageSize': page_size,
+            'hasMore': pagination.has_next
+        }
+        return jsonify({'code': 0, 'message': 'success', 'data': result})
+    except Exception as e:
+        logger.error(f'获取浏览历史失败: {str(e)}')
+        return jsonify({'code': 500, 'message': '获取失败'}), 500
+
+# 新增：检查用户对某内容的互动状态
+@interaction_bp.route('/interaction/status/<int:culture_id>', methods=['GET'])
+@jwt_required()
+def get_interaction_status(culture_id):
+    try:
+        user_id = get_jwt_identity()
+        
+        is_liked = Like.query.filter_by(user_id=user_id, culture_id=culture_id).first() is not None
+        is_collected = Collect.query.filter_by(user_id=user_id, culture_id=culture_id).first() is not None
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'isLiked': is_liked,
+                'isCollected': is_collected
+            }
+        })
+    except Exception as e:
+        logger.error(f'获取互动状态失败: {str(e)}')
+        return jsonify({'code': 500, 'message': '获取失败'}), 500

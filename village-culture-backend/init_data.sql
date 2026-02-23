@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS cultures (
     view_count INT DEFAULT 0,
     like_count INT DEFAULT 0,
     collect_count INT DEFAULT 0,
+    share_count INT DEFAULT 0,
     score FLOAT DEFAULT 0.0,
     is_hot BOOLEAN DEFAULT FALSE,
     is_recommend BOOLEAN DEFAULT TRUE,
@@ -109,7 +110,13 @@ INSERT INTO categories (name, description, sort_order) VALUES
 ('节庆习俗', '传统节庆习俗', 6),
 ('民间文学', '民间文学作品', 7);
 
-INSERT INTO cultures (name, category_id, description, summary, origin, heritage_level, cover_image, view_count, like_count, collect_count, score) VALUES
-('年画', 1, '年画是中国画的一种，始于古代的"门神画"，中国民间艺术之一。', '中国传统民间艺术', '山东潍坊', '国家级', '/images/New_Year_pictures.png', 128, 36, 35, 85.5),
-('皮影戏', 2, '皮影戏是中国民间古老的传统艺术，始于西汉，兴于唐朝。', '古老的民间艺术', '陕西华县', '国家级', '/images/Shadow_puppetry.png', 95, 24, 30, 78.3),
-('剪纸', 1, '中国剪纸是一种用剪刀或刻刀在纸上剪刻花纹的民间艺术。', '纸上的艺术', '山西静乐', '国家级', '/images/Cookie_cutter.png', 210, 58, 40, 92.1);
+INSERT INTO cultures (name, category_id, description, summary, origin, heritage_level, cover_image, view_count, like_count, collect_count, share_count, score) VALUES
+('年画', 1, '年画是中国画的一种，始于古代的"门神画"，中国民间艺术之一。', '中国传统民间艺术', '山东潍坊', '国家级', '/images/New_Year_pictures.png', 128, 36, 35, 12, 85.5),
+('皮影戏', 2, '皮影戏是中国民间古老的传统艺术，始于西汉，兴于唐朝。', '古老的民间艺术', '陕西华县', '国家级', '/images/Shadow_puppetry.png', 95, 24, 30, 8, 78.3),
+('剪纸', 1, '中国剪纸是一种用剪刀或刻刀在纸上剪刻花纹的民间艺术。', '纸上的艺术', '山西静乐', '国家级', '/images/Cookie_cutter.png', 210, 58, 40, 15, 92.1),
+('苏绣', 1, '苏绣是中国优秀的民族传统工艺之一，是苏州地区刺绣产品的总称。', '苏州传统刺绣工艺', '江苏苏州', '国家级', '/images/default_culture.jpg', 156, 42, 38, 10, 88.5),
+('京剧', 2, '京剧是中国五大戏曲剧种之一，被视为中国国粹。', '中国国粹戏曲艺术', '北京', '国家级', '/images/default_culture.jpg', 189, 55, 45, 18, 91.2),
+('昆曲', 2, '昆曲是中国古老的戏曲声腔、剧种，被称为"百戏之祖"。', '中国古老戏曲剧种', '江苏昆山', '世界级', '/images/default_culture.jpg', 145, 38, 32, 9, 85.0),
+('端午节', 6, '端午节是集拜神祭祖、祈福辟邪、欢庆娱乐和饮食为一体的民俗大节。', '中国传统节日', '中国', '世界级', '/images/default_culture.jpg', 230, 68, 52, 22, 95.5),
+('春节', 6, '春节是中华民族最隆重的传统佳节。', '中国最重要的传统节日', '中国', '国家级', '/images/default_culture.jpg', 280, 85, 72, 35, 98.8),
+('少林功夫', 2, '少林功夫是中国武术中体系最庞大的门派，是中华武术的象征。', '中国武术文化代表', '河南登封', '世界级', '/images/default_culture.jpg', 175, 48, 42, 14, 89.3);

@@ -22,8 +22,12 @@ def scheduled_crawl():
     logger.info('⏰ 开始定时爬取...')
 
     try:
+        # 获取项目根目录
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        upload_folder = os.path.join(project_root, 'uploads')
+        
         # 爬取数据
-        crawler = CultureCrawler(upload_folder='uploads')
+        crawler = CultureCrawler(upload_folder=upload_folder)
         data_list = crawler.crawl_all()
 
         if data_list:
@@ -55,7 +59,8 @@ def setup_scheduler():
         scheduled_crawl,
         trigger=CronTrigger(hour=2, minute=0),
         id='daily_crawl',
-        name='每日数据爬取'
+        name='每日数据爬取',
+        replace_existing=True
     )
 
     # 每小时更新推荐
@@ -63,7 +68,8 @@ def setup_scheduler():
         update_recommendations,
         trigger=CronTrigger(hour='*'),
         id='hourly_recommend',
-        name='每小时推荐更新'
+        name='每小时推荐更新',
+        replace_existing=True
     )
 
     logger.info('📅 定时任务设置完成')
@@ -81,8 +87,9 @@ if __name__ == '__main__':
 
     # 保持运行
     try:
+        import time
         while True:
-            pass
+            time.sleep(1)
     except KeyboardInterrupt:
         scheduler.shutdown()
         logger.info('调度器已停止')

@@ -5,63 +5,11 @@ var apiService = require('../../utils/apiService.js')
 Page({
   data: {
     systemInfo: {},
-    imgList: [
-      {
-        id: 1,
-        url: '/images/candle.png',
-        viewCount: 128,
-        likeCount: 36,
-        collectCount: 35
-      },
-      {
-        id: 2,
-        url: '/images/plate.png',
-        viewCount: 95,
-        likeCount: 24,
-        collectCount: 30
-      },
-      {
-        id: 3,
-        url: '/images/Cookie_cutter.png',
-        viewCount: 210,
-        likeCount: 58,
-        collectCount: 40
-      }
-    ],
-    imgListTwo: [
-      [
-        {
-          id: 4,
-          url: '/images/cup.png',
-          viewCount: 76,
-          likeCount: 15,
-          collectCount: 90
-        },
-        {
-          id: 5,
-          url: '/images/New_Year_pictures.png',
-          viewCount: 143,
-          likeCount: 42,
-          collectCount: 20
-        }
-      ],
-      [
-        {
-          id: 6,
-          url: '/images/stamp.png',
-          viewCount: 89,
-          likeCount: 27,
-          collectCount: 3
-        },
-        {
-          id: 7,
-          url: '/images/Shadow_puppetry.png',
-          viewCount: 165,
-          likeCount: 63,
-          collectCount: 78
-        }
-      ]
-    ]
+    recommendList: [],
+    hotList: [],
+    loading: false,
+    page: 1,
+    hasMore: true
   },
 
   onLoad: function (options) {
@@ -72,19 +20,82 @@ Page({
       })
     })
     
-    // TODO: 从后端加载真实数据
-    // this.loadData()
+    // 加载数据
+    this.loadData()
+  },
+
+  onShow: function() {
+    // 每次显示时刷新个性化推荐
+    this.loadPersonalRecommend()
   },
 
   // 加载数据
   loadData: async function() {
+    this.setData({ loading: true })
+    
     try {
-      const res = await apiService.getRecommend(1, 10)
-      if (res.code === 0) {
-        // 处理数据
+      // 并行加载个性化推荐和热门推荐
+      const [personalRes, hotRes] = await Promise.all([
+        this.loadPersonalRecommend(),
+        apiService.getHotRecommend(6)
+      ])
+      
+      if (hotRes.code === 0) {
+        this.setData({
+          hotList: hotRes.data || []
+        })
       }
     } catch (err) {
       console.error('加载数据失败：', err)
+    } finally {
+      this.setData({ loading: false })
+    }
+  },
+
+  // 加载个性化推荐
+  loadPersonalRecommend: async function() {
+    try {
+      let res
+      if (app.globalData.isLoggedIn) {
+        // 已登录用户获取个性化推荐
+        res = await apiService.getPersonalRecommend(10)
+      } else {
+        // 未登录用户获取热门推荐
+        res = await apiService.getHotRecommend(10)
+      }
+      
+      if (res.code === 0) {
+        this.setData({
+          recommendList: res.data || []
+        })
+      }
+    } catch (err) {
+      console.error('加载个性化推荐失败：', err)
+    }
+  },
+
+  // 刷新推荐
+  onRefresh: async function() {
+    wx.showLoading({ title: '刷新中...' })
+    
+    try {
+      if (app.globalData.isLoggedIn) {
+        await apiService.refreshRecommendations()
+      }
+      await this.loadPersonalRecommend()
+      
+      wx.showToast({
+        title: '刷新成功',
+        icon: 'success'
+      })
+    } catch (err) {
+      console.error('刷新失败：', err)
+      wx.showToast({
+        title: '刷新失败',
+        icon: 'none'
+      })
+    } finally {
+      wx.hideLoading()
     }
   },
 
@@ -106,8 +117,9 @@ Page({
     })
   },
 
-  onPullDownRefresh: function() {
-    this.loadData()
+  // 下拉刷新
+  onPullDownRefresh: async function() {
+    await this.loadData()
     wx.stopPullDownRefresh()
   }
 })
