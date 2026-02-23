@@ -40,7 +40,8 @@ const mockData = {
       category: '传统手工',
       categoryId: 1,
       image: '/images/New_Year_pictures.png',
-      description: '年画是中国画的一种，始于古代的“门神画”，中国民间艺术之一，亦是常见的民间工艺品之一。',
+      description: '年画是中国画的一种，始于古代的"门神画"，中国民间艺术之一，亦是常见的民间工艺品之一。',
+      summary: '年画是中国民间艺术中的瑰宝，以纸为材料，用剪刀或刻刀剪刻出各种图案，寓意吉祥，寄托美好愿望。',
       viewCount: 128,
       likeCount: 36,
       collectCount: 35,
@@ -53,77 +54,27 @@ const mockData = {
       category: '表演艺术',
       categoryId: 2,
       image: '/images/Shadow_puppetry.png',
-      description: '皮影戏是中国民间古老的传统艺术，老北京人都叫它“驴皮影”。据史书记载，皮影戏始于西汉，兴于唐朝，盛于清代，元代时期传至西亚和欧洲。',
-      viewCount: 95,
-      likeCount: 24,
-      collectCount: 30,
+      description: '皮影戏是中国民间古老的传统艺术，始于西汉，兴于唐朝。皮影戏又称"影子戏"或"灯影戏"，是一种以兽皮或纸板做成的人物剪影以表演故事的民间戏剧。',
+      summary: '皮影戏是中国古老的民间艺术，以兽皮或纸板剪影表演故事，始于西汉，是中国民间艺术的珍贵遗产。',
+      viewCount: 89,
+      likeCount: 45,
+      collectCount: 28,
       createTime: '2024-01-20',
-      tags: ['传统艺术', '民间表演', '非遗']
+      tags: ['传统技艺', '表演艺术', '非遗']
     },
     {
       id: 3,
-      name: '剪纸',
+      name: '景泰蓝',
       category: '传统手工',
       categoryId: 1,
       image: '/images/Cookie_cutter.png',
-      description: '中国剪纸是一种用剪刀或刻刀在纸上剪刻花纹，用于装点生活或配合民俗活动的民间艺术。',
-      viewCount: 210,
-      likeCount: 58,
-      collectCount: 40,
+      description: '景泰蓝，中国的著名特种金属工艺品类之一，到明代景泰年间这种工艺技术制作达到了最巅峰，制作出的工艺品最为精美而著名。',
+      summary: '景泰蓝是中国著名的特种金属工艺品，以精美的工艺和独特的风格闻名于世，是中华传统工艺的瑰宝。',
+      viewCount: 156,
+      likeCount: 67,
+      collectCount: 45,
       createTime: '2024-02-01',
-      tags: ['传统手工', '民间艺术', '装饰']
-    },
-    {
-      id: 4,
-      name: '陶瓷技艺',
-      category: '生产技艺',
-      categoryId: 3,
-      image: '/images/cup.png',
-      description: '陶瓷是陶器和瓷器的总称，中国人早在约公元前8000－2000年（新石器时代）就发明了陶器。',
-      viewCount: 76,
-      likeCount: 15,
-      collectCount: 90,
-      createTime: '2024-02-05',
-      tags: ['传统技艺', '陶瓷', '工艺']
-    },
-    {
-      id: 5,
-      name: '印章篆刻',
-      category: '传统手工',
-      categoryId: 1,
-      image: '/images/stamp.png',
-      description: '篆刻艺术，是书法（主要是篆书）和镌刻（包括凿、铸）结合，来制作印章的艺术，是汉字特有的艺术形式。',
-      viewCount: 143,
-      likeCount: 42,
-      collectCount: 20,
-      createTime: '2024-02-10',
-      tags: ['传统技艺', '书法', '艺术']
-    },
-    {
-      id: 6,
-      name: '彩碟',
-      category: '传统手工',
-      categoryId: 1,
-      image: '/images/plate.png',
-      description: '彩碟是一种传统的民间手工艺品，以其精美的图案和独特的工艺著称。',
-      viewCount: 89,
-      likeCount: 27,
-      collectCount: 3,
-      createTime: '2024-02-12',
-      tags: ['传统工艺', '装饰艺术']
-    },
-    {
-      id: 7,
-      name: '蜡染技艺',
-      category: '传统手工',
-      categoryId: 1,
-      image: '/images/candle.png',
-      description: '蜡染是我国古老的少数民族民间传统纺织印染手工艺，古称蜡，与绞缬（扎染）、夹缬（镂空印花）并称为我国古代三大印花技艺。',
-      viewCount: 165,
-      likeCount: 63,
-      collectCount: 78,
-      createTime: '2024-02-15',
-      tags: ['传统技艺', '印染', '非遗']
+      tags: ['传统技艺', '金属工艺', '非遗']
     }
   ],
 
@@ -135,12 +86,12 @@ const mockData = {
     { id: 4, name: '风物传说', icon: 'legend', count: 32 },
     { id: 5, name: '人物传说', icon: 'person', count: 28 },
     { id: 6, name: '节庆习俗', icon: 'festival', count: 15 },
-    { id: 7, name: '民间文学', icon: 'literature', count: 36 }
+    { id: 7, name: '民间文学', icon: 'literature', count: 20 }
   ]
 }
 
 /**
- * 模拟API响应
+ * 模拟API方法
  */
 const mockApi = {
   // 获取轮播图
@@ -154,12 +105,12 @@ const mockApi = {
   },
 
   // 获取推荐内容
-  getRecommend: async (page = 1, pageSize = 10) => {
+  getRecommend: async (page = 1, pageSize = 20) => {
     await delay()
     const start = (page - 1) * pageSize
     const end = start + pageSize
     const list = mockData.cultures.slice(start, end)
-    
+
     return {
       code: 0,
       message: 'success',
@@ -173,39 +124,34 @@ const mockApi = {
     }
   },
 
-  // 获取内容详情
+  // 获取详情
   getDetail: async (id) => {
     await delay()
     const item = mockData.cultures.find(c => c.id === id)
-    
-    if (!item) {
-      return {
-        code: 404,
-        message: '内容不存在',
-        data: null
-      }
-    }
-    
     return {
       code: 0,
       message: 'success',
-      data: item
+      data: item || null
     }
   },
 
-  // 搜索内容
+  // 搜索
   search: async (keyword) => {
     await delay()
-    const results = mockData.cultures.filter(c => 
-      c.name.includes(keyword) || 
-      c.category.includes(keyword) ||
-      c.tags.some(tag => tag.includes(keyword))
+    const results = mockData.cultures.filter(c =>
+      c.name.includes(keyword) || c.description.includes(keyword)
     )
-    
+
     return {
       code: 0,
       message: 'success',
-      data: results
+      data: {
+        list: results,
+        total: results.length,
+        page: 1,
+        pageSize: 20,
+        hasMore: false
+      }
     }
   },
 
@@ -213,11 +159,17 @@ const mockApi = {
   getByCategory: async (categoryId) => {
     await delay()
     const results = mockData.cultures.filter(c => c.categoryId === categoryId)
-    
+
     return {
       code: 0,
       message: 'success',
-      data: results
+      data: {
+        list: results,
+        total: results.length,
+        page: 1,
+        pageSize: 20,
+        hasMore: false
+      }
     }
   },
 
@@ -238,11 +190,11 @@ const mockApi = {
     if (item) {
       item.likeCount++
     }
-    
+
     return {
       code: 0,
       message: 'success',
-      data: { likeCount: item.likeCount }
+      data: { likeCount: item ? item.likeCount : 0 }
     }
   },
 
@@ -253,11 +205,11 @@ const mockApi = {
     if (item && item.likeCount > 0) {
       item.likeCount--
     }
-    
+
     return {
       code: 0,
       message: 'success',
-      data: { likeCount: item.likeCount }
+      data: { likeCount: item ? item.likeCount : 0 }
     }
   },
 
@@ -268,11 +220,11 @@ const mockApi = {
     if (item) {
       item.collectCount++
     }
-    
+
     return {
       code: 0,
       message: 'success',
-      data: { collectCount: item.collectCount }
+      data: { collectCount: item ? item.collectCount : 0 }
     }
   },
 
@@ -283,11 +235,11 @@ const mockApi = {
     if (item && item.collectCount > 0) {
       item.collectCount--
     }
-    
+
     return {
       code: 0,
       message: 'success',
-      data: { collectCount: item.collectCount }
+      data: { collectCount: item ? item.collectCount : 0 }
     }
   }
 }

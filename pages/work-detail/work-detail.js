@@ -13,7 +13,8 @@ Page({
     isLiked: false,
     isCollected: false,
     relatedList: [],
-    loading: true
+    loading: true,
+    defaultImage: '/images/class_white.png'
   },
 
   onLoad: function (options) {
@@ -45,18 +46,26 @@ Page({
     try {
       this.setData({ loading: true })
       const res = await apiService.getDetail(parseInt(id))
-      
+
       if (res.code === 0) {
         const work = res.data
-        
-        // 设置轮播图（使用主图）
-        const swipers = work.images 
-          ? work.images.split(',').map((url, index) => ({ id: index + 1, url: url.trim() }))
-          : [{ id: 1, url: work.image }]
-        
-        this.setData({ 
+
+        // 设置轮播图（使用主图），处理空图片情况
+        let swipers = []
+        if (work.images) {
+          swipers = work.images.split(',')
+            .map((url, index) => ({ id: index + 1, url: url.trim() }))
+            .filter(s => s.url)  // 过滤空URL
+        }
+
+        // 如果没有图片，使用默认图片
+        if (swipers.length === 0) {
+          swipers = [{ id: 1, url: work.image || this.data.defaultImage }]
+        }
+
+        this.setData({
           work: work,
-          swipers: swipers.length > 0 ? swipers : [{ id: 1, url: work.image }],
+          swipers: swipers,
           likeCount: work.likeCount || 0,
           collectCount: work.collectCount || 0,
           loading: false
@@ -334,5 +343,27 @@ Page({
       urls: urls,
       current: current
     })
+  },
+
+  // 图片加载失败处理
+  onSwiperImageError: function(e) {
+    console.warn('轮播图加载失败:', e.detail)
+    const index = e.currentTarget.dataset.index
+    if (index !== undefined) {
+      const swipers = this.data.swipers
+      swipers[index].url = this.data.defaultImage
+      this.setData({ swipers })
+    }
+  },
+
+  // 相关推荐图片加载失败处理
+  onRelatedImageError: function(e) {
+    console.warn('相关推荐图片加载失败:', e.detail)
+    const index = e.currentTarget.dataset.index
+    if (index !== undefined) {
+      const relatedList = this.data.relatedList
+      relatedList[index].image = this.data.defaultImage
+      this.setData({ relatedList })
+    }
   }
 })

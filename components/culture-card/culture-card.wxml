@@ -1,18 +1,20 @@
 <!-- components/culture-card/culture-card.wxml -->
 <view class="culture-card" bindtap="onTap">
   <view class="card-image-container">
-    <image 
-      class="card-image" 
-      src="{{item.image}}" 
+    <image
+      class="card-image"
+      src="{{currentImage}}"
       mode="aspectFill"
       lazy-load="true"
+      binderror="onImageError"
+      bindload="onImageLoad"
     ></image>
     <view class="card-mask">
       <text class="card-title">{{item.name}}</text>
       <text class="card-subtitle">{{item.category}}</text>
     </view>
   </view>
-  
+
   <view class="card-footer">
     <view class="card-stats">
       <view class="stat-item">

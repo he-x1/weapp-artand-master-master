@@ -124,3 +124,33 @@
   padding: 15px 10px 10px;
   background: linear-gradient(transparent, rgba(0,0,0,0.5));
 }
+
+.grid-title {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+/* 空状态 */
+.empty-state {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+.empty-text {
+  color: #9B8B7A;
+  font-size: 14px;
+}
+
+/* 加载状态 */
+.loading {
+  padding: 20px;
+  text-align: center;
+  color: #9B8B7A;
+  font-size: 14px;
+}

@@ -131,5 +131,14 @@ Page({
     if (this.data.hasMore && !this.data.loading && this.data.keyword) {
       this.doSearch(this.data.keyword, true)
     }
+  },
+
+  // 下拉刷新
+  onPullDownRefresh: function() {
+    if (this.data.keyword) {
+      this.setData({ page: 1, results: [], hasMore: true })
+      this.doSearch(this.data.keyword)
+    }
+    wx.stopPullDownRefresh()
   }
 })

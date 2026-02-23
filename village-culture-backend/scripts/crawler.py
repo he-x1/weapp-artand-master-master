@@ -23,14 +23,13 @@ except:
     HAS_CV2 = False
     logger.warning('未安装opencv-python，将使用PIL进行图像处理')
 
-# 尝试导入摘要生成模块
+# 导入摘要生成服务
 try:
-    from transformers import pipeline
-    summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
-    HAS_SUMMARIZER = True
-except:
-    HAS_SUMMARIZER = False
-    logger.warning('未安装transformers库，将使用简单的摘要生成')
+    from app.services.summary_generator import generate_cultural_summary
+    HAS_SUMMARY_SERVICE = True
+except ImportError:
+    HAS_SUMMARY_SERVICE = False
+    logger.warning('未找到摘要生成服务，将使用内置规则')
 
 
 class CultureCrawler:
@@ -134,24 +133,29 @@ class CultureCrawler:
             logger.error(f'下载图片失败 {img_url}: {e}')
         return None
 
-    def generate_summary(self, title, description):
+    def generate_summary(self, title, description, category_id=1, origin=None, heritage_level=None):
         """生成丰富的文本摘要"""
-        text = f"{title}。{description}" if description else title
-        
-        # 使用预训练模型生成摘要
-        if HAS_SUMMARIZER and len(text) > 100:
+        # 优先使用摘要服务
+        if HAS_SUMMARY_SERVICE:
             try:
-                summary = summarizer(text, max_length=80, min_length=30, do_sample=False)
-                return summary[0]['summary_text']
+                summary = generate_cultural_summary(
+                    title=title,
+                    description=description,
+                    category_id=category_id,
+                    origin=origin,
+                    heritage_level=heritage_level
+                )
+                if summary:
+                    return summary
             except Exception as e:
-                logger.warning(f'摘要生成失败: {e}')
-        
+                logger.warning(f'摘要服务调用失败: {e}')
+
         # 如果没有摘要器或生成失败，使用规则生成摘要
         if description:
             # 提取关键信息，生成更详细的摘要
             sentences = re.split(r'[。！？]', description)
             key_sentences = []
-            
+
             # 提取有意义的句子
             for s in sentences:
                 s = s.strip()
@@ -159,12 +163,12 @@ class CultureCrawler:
                     key_sentences.append(s)
                     if len(key_sentences) >= 3:
                         break
-            
+
             if key_sentences:
                 summary = '。'.join(key_sentences)
                 if len(summary) > 50:
                     return summary + '。'
-        
+
         # 根据关键词生成摘要
         keywords_summary = {
             '刺绣': '刺绣是中国古老的手工技艺之一，以针引线，在织物上绣出各种图案，工艺精湛，色彩绚丽，是中华民族智慧的结晶。',
@@ -173,7 +177,7 @@ class CultureCrawler:
             '京剧': '京剧是中国传统戏曲艺术的代表，融合了唱、念、做、打等多种表演形式，被誉为"国粹"，是中国戏曲艺术的精华。',
             '节日': '中国传统节日承载着深厚的文化内涵，体现了中华民族对自然、祖先和美好生活的敬畏与追求，是中华文化的重要组成部分。'
         }
-        
+
         for keyword, summary in keywords_summary.items():
             if keyword in title or (description and keyword in description):
                 return summary
@@ -243,9 +247,9 @@ class CultureCrawler:
                                 cover_image = None
                                 if img_url:
                                     cover_image = self.download_image(img_url, f'ihchina_{category_id}')
-                                
-                                # 生成摘要
-                                summary = self.generate_summary(title, description)
+
+                                # 生成摘要（传入分类ID）
+                                summary = self.generate_summary(title, description, category_id=category_id)
                                 
                                 data_list.append({
                                     'name': title[:200],
@@ -302,7 +306,7 @@ class CultureCrawler:
                             cover_image = self.download_image(img_url, f'wiki_{keyword}')
                         
                         category_id = self.detect_category(keyword, description)
-                        summary = self.generate_summary(keyword, description)
+                        summary = self.generate_summary(keyword, description, category_id=category_id)
                         
                         data_list.append({
                             'name': keyword,
