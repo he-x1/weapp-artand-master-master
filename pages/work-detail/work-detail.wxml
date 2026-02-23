@@ -3,8 +3,8 @@
   <!-- 轮播图区域 -->
   <swiper 
     class="banner-swiper" 
-    indicator-dots="true" 
-    autoplay="true" 
+    indicator-dots="{{swipers.length > 1}}" 
+    autoplay="{{swipers.length > 1}}" 
     interval="4000" 
     duration="600"
   >
@@ -14,6 +14,8 @@
           src="{{item.url}}" 
           class="slide-image" 
           mode="aspectFill"
+          bindtap="previewImage"
+          data-url="{{item.url}}"
         />
       </swiper-item>
     </block>
@@ -23,8 +25,9 @@
   <view class="content-section">
     <view class="content-header">
       <text class="content-title">{{work.name}}</text>
-      <view class="content-tags">
-        <text class="tag" wx:for="{{work.tags}}" wx:key="index">{{item}}</text>
+      <view class="content-meta">
+        <text class="meta-item" wx:if="{{work.origin}}">产地：{{work.origin}}</text>
+        <text class="meta-item" wx:if="{{work.heritageLevel}}">级别：{{work.heritageLevel}}</text>
       </view>
     </view>
 
@@ -45,9 +48,15 @@
     </view>
 
     <!-- 分类信息 -->
-    <view class="info-item">
+    <view class="info-item" wx:if="{{work.category}}">
       <text class="info-label">分类：</text>
       <text class="info-value">{{work.category}}</text>
+    </view>
+
+    <!-- 摘要 -->
+    <view class="summary-section" wx:if="{{work.summary}}">
+      <text class="summary-title">内容摘要</text>
+      <text class="summary-content">{{work.summary}}</text>
     </view>
 
     <!-- 详细介绍 -->
@@ -57,20 +66,22 @@
     </view>
 
     <!-- 相关推荐 -->
-    <view class="related-section">
+    <view class="related-section" wx:if="{{relatedList.length > 0}}">
       <text class="related-title">相关推荐</text>
-      <view class="related-list">
-        <view 
-          class="related-item" 
-          wx:for="{{relatedList}}" 
-          wx:key="id"
-          bindtap="goToDetail"
-          data-id="{{item.id}}"
-        >
-          <image src="{{item.image}}" class="related-image" mode="aspectFill"></image>
-          <text class="related-name">{{item.name}}</text>
+      <scroll-view class="related-list" scroll-x>
+        <view class="related-item-wrapper">
+          <view 
+            class="related-item" 
+            wx:for="{{relatedList}}" 
+            wx:key="id"
+            bindtap="goToDetail"
+            data-item="{{item}}"
+          >
+            <image src="{{item.image}}" class="related-image" mode="aspectFill"></image>
+            <text class="related-name">{{item.name}}</text>
+          </view>
         </view>
-      </view>
+      </scroll-view>
     </view>
   </view>
 
@@ -84,7 +95,7 @@
         src="{{isLiked ? '/images/loved.png' : '/images/love.png'}}" 
         class="action-icon"
       ></image>
-      <text>点赞</text>
+      <text>{{isLiked ? '已点赞' : '点赞'}}</text>
     </button>
     <button 
       class="action-btn {{isCollected ? 'active' : ''}}"
@@ -94,7 +105,7 @@
         src="{{isCollected ? '/images/collected.png' : '/images/collect.png'}}" 
         class="action-icon"
       ></image>
-      <text>收藏</text>
+      <text>{{isCollected ? '已收藏' : '收藏'}}</text>
     </button>
     <button class="action-btn" bindtap="handleShare">
       <image src="/images/class_white.png" class="action-icon"></image>

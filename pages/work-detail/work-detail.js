@@ -12,7 +12,8 @@ Page({
     collectCount: 0,
     isLiked: false,
     isCollected: false,
-    relatedList: []
+    relatedList: [],
+    loading: true
   },
 
   onLoad: function (options) {
@@ -42,23 +43,23 @@ Page({
   // 加载内容详情
   loadDetail: async function(id) {
     try {
+      this.setData({ loading: true })
       const res = await apiService.getDetail(parseInt(id))
       
       if (res.code === 0) {
         const work = res.data
         
         // 设置轮播图（使用主图）
-        const swipers = [
-          { id: 1, url: work.image },
-          { id: 2, url: work.image },
-          { id: 3, url: work.image }
-        ]
+        const swipers = work.images 
+          ? work.images.split(',').map((url, index) => ({ id: index + 1, url: url.trim() }))
+          : [{ id: 1, url: work.image }]
         
         this.setData({ 
           work: work,
-          swipers: swipers,
+          swipers: swipers.length > 0 ? swipers : [{ id: 1, url: work.image }],
           likeCount: work.likeCount || 0,
-          collectCount: work.collectCount || 0
+          collectCount: work.collectCount || 0,
+          loading: false
         })
         
         // 加载相关推荐
@@ -71,9 +72,18 @@ Page({
         if (app.globalData.isLoggedIn) {
           this.loadInteractionStatus(id)
         }
+      } else {
+        wx.showToast({
+          title: '内容不存在',
+          icon: 'none'
+        })
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 1500)
       }
     } catch (err) {
       console.error('加载详情失败：', err)
+      this.setData({ loading: false })
       wx.showToast({
         title: '加载失败',
         icon: 'none'
@@ -83,6 +93,8 @@ Page({
 
   // 加载用户互动状态
   loadInteractionStatus: async function(id) {
+    if (!app.globalData.isLoggedIn) return
+    
     try {
       const res = await apiService.getInteractionStatus(id)
       if (res.code === 0) {
@@ -143,13 +155,17 @@ Page({
   // 点赞功能
   handleLike: async function() {
     if (!app.globalData.isLoggedIn) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none'
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再进行点赞',
+        confirmText: '去登录',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/pages/login/login' })
+          }
+        }
       })
-      setTimeout(() => {
-        wx.navigateTo({ url: '/pages/login/login' })
-      }, 1500)
       return
     }
 
@@ -162,7 +178,16 @@ Page({
         if (res.code === 0) {
           this.setData({
             isLiked: false,
-            likeCount: res.data.likeCount || (likeCount - 1)
+            likeCount: res.data.likeCount || Math.max(0, likeCount - 1)
+          })
+          wx.showToast({
+            title: '已取消点赞',
+            icon: 'success'
+          })
+        } else {
+          wx.showToast({
+            title: res.message || '操作失败',
+            icon: 'none'
           })
         }
       } else {
@@ -173,12 +198,21 @@ Page({
             isLiked: true,
             likeCount: res.data.likeCount || (likeCount + 1)
           })
+          wx.showToast({
+            title: '点赞成功',
+            icon: 'success'
+          })
+        } else {
+          wx.showToast({
+            title: res.message || '操作失败',
+            icon: 'none'
+          })
         }
       }
     } catch (err) {
       console.error('点赞操作失败：', err)
       wx.showToast({
-        title: '操作失败',
+        title: '操作失败，请重试',
         icon: 'none'
       })
     }
@@ -187,13 +221,17 @@ Page({
   // 收藏功能
   handleCollect: async function() {
     if (!app.globalData.isLoggedIn) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none'
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再进行收藏',
+        confirmText: '去登录',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/pages/login/login' })
+          }
+        }
       })
-      setTimeout(() => {
-        wx.navigateTo({ url: '/pages/login/login' })
-      }, 1500)
       return
     }
 
@@ -206,11 +244,16 @@ Page({
         if (res.code === 0) {
           this.setData({
             isCollected: false,
-            collectCount: res.data.collectCount || (collectCount - 1)
+            collectCount: res.data.collectCount || Math.max(0, collectCount - 1)
           })
           wx.showToast({
             title: '已取消收藏',
             icon: 'success'
+          })
+        } else {
+          wx.showToast({
+            title: res.message || '操作失败',
+            icon: 'none'
           })
         }
       } else {
@@ -225,12 +268,17 @@ Page({
             title: '收藏成功',
             icon: 'success'
           })
+        } else {
+          wx.showToast({
+            title: res.message || '操作失败',
+            icon: 'none'
+          })
         }
       }
     } catch (err) {
       console.error('收藏操作失败：', err)
       wx.showToast({
-        title: '操作失败',
+        title: '操作失败，请重试',
         icon: 'none'
       })
     }
@@ -246,10 +294,12 @@ Page({
 
   // 跳转到详情
   goToDetail: function(e) {
-    const id = e.currentTarget.dataset.id
-    wx.redirectTo({
-      url: `/pages/work-detail/work-detail?id=${id}`
-    })
+    const item = e.currentTarget.dataset.item || e.detail.item
+    if (item && item.id) {
+      wx.navigateTo({
+        url: `/pages/work-detail/work-detail?id=${item.id}`
+      })
+    }
   },
 
   // 分享给好友
@@ -270,8 +320,19 @@ Page({
     }
   },
 
+  // 下拉刷新
   onPullDownRefresh: function () {
     this.loadDetail(this.data.workId)
     wx.stopPullDownRefresh()
+  },
+
+  // 预览图片
+  previewImage: function(e) {
+    const urls = this.data.swipers.map(s => s.url)
+    const current = e.currentTarget.dataset.url
+    wx.previewImage({
+      urls: urls,
+      current: current
+    })
   }
 })

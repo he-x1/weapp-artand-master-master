@@ -64,9 +64,29 @@ Page({
     }
   },
 
+  onShow: function() {
+    // 每次显示页面时，如果是点赞/收藏/历史页面，重新加载数据
+    if (this.data.type !== 'category' && app.globalData.isLoggedIn) {
+      this.loadDataByType(this.data.type)
+    }
+  },
+
   // 根据类型加载数据
   loadDataByType: async function(type) {
-    this.setData({ loading: true })
+    // 检查登录状态
+    if (!app.globalData.isLoggedIn) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
+        duration: 2000
+      })
+      setTimeout(() => {
+        wx.navigateTo({ url: '/pages/login/login' })
+      }, 2000)
+      return
+    }
+
+    this.setData({ loading: true, page: 1, hasMore: true })
     
     try {
       let res
@@ -74,23 +94,26 @@ Page({
       
       switch(type) {
         case 'likes':
-          res = await apiService.getLikes(this.data.page)
+          res = await apiService.getLikes(1, 20)
           if (res.code === 0) {
             contentList = res.data.list || []
+            console.log('点赞列表:', contentList.length, '条')
           }
           break
           
         case 'collects':
-          res = await apiService.getCollects(this.data.page)
+          res = await apiService.getCollects(1, 20)
           if (res.code === 0) {
             contentList = res.data.list || []
+            console.log('收藏列表:', contentList.length, '条')
           }
           break
           
         case 'history':
-          res = await apiService.getHistory(this.data.page)
+          res = await apiService.getHistory(1, 20)
           if (res.code === 0) {
             contentList = res.data.list || []
+            console.log('历史列表:', contentList.length, '条')
           }
           break
           
@@ -183,7 +206,8 @@ Page({
     // 重置页码
     this.setData({
       page: 1,
-      hasMore: true
+      hasMore: true,
+      currentContent: []
     })
     
     this.loadCategoryContent(categoryId)
@@ -204,6 +228,8 @@ Page({
 
   // 加载更多（点赞/收藏/历史）
   loadMoreByType: async function() {
+    if (!app.globalData.isLoggedIn) return
+    
     this.setData({ loading: true })
     
     try {
@@ -249,6 +275,7 @@ Page({
     this.loadMore()
   },
 
+  // 下拉刷新
   onPullDownRefresh: function () {
     this.setData({ page: 1, hasMore: true })
     

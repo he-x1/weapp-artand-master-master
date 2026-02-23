@@ -1,65 +1,68 @@
 <!--pages/exhibition/exhibition.wxml-->
 <view class="page">
-  <!-- 分类按钮区域 -->
-  <view class="category-buttons">
-    <view class="category-grid">
-      <view 
-        class="category-btn {{item.id === activeCategoryId ? 'active' : ''}}"
-        wx:for="{{categories}}" 
-        wx:key="id"
-        data-id="{{item.id}}"
-        bindtap="switchCategory"
-      >
-        <text class="btn-name">{{item.name}}</text>
-      </view>
-    </view>
-  </view>
+  <!-- 搜索栏（仅分类模式下显示） -->
+  <search-bar 
+    wx:if="{{type === 'category'}}"
+    placeholder="搜索文化内容..."
+    bind:search="onSearch"
+  ></search-bar>
 
-  <!-- 内容区域 -->
-  <scroll-view class="content-scroll" scroll-y bindscrolltolower="loadMore">
-    <!-- 当前分类标题 -->
-    <view class="content-header">
-      <text class="content-title">{{currentCategoryName}}</text>
-      <text class="content-count">共{{currentContent.length}}篇内容</text>
-    </view>
-    
-    <!-- 内容列表 -->
-    <view class="content-list">
-      <view 
-        class="content-item" 
-        wx:for="{{currentContent}}" 
+  <!-- 分类标签（仅分类模式下显示） -->
+  <scroll-view 
+    wx:if="{{type === 'category'}}"
+    class="category-tabs" 
+    scroll-x
+  >
+    <view class="tabs-container">
+      <view
+        class="tab-item {{activeCategoryId === item.id ? 'active' : ''}}"
+        wx:for="{{categories}}"
         wx:key="id"
-        bindtap="goToDetail"
-        data-item="{{item}}"
+        bindtap="switchCategory"
+        data-id="{{item.id}}"
       >
-        <image 
-          src="{{item.image}}" 
-          mode="aspectFill" 
-          class="content-img"
-        ></image>
-        <view class="content-info">
-          <text class="content-name">{{item.name}}</text>
-          <text class="content-desc ellipsis-2">{{item.description || '暂无描述'}}</text>
-          <view class="content-footer">
-            <view class="content-stats">
-              <view class="stat">
-                <image src="/images/see.png" class="stat-icon"></image>
-                <text>{{item.viewCount || 0}}</text>
-              </view>
-              <view class="stat">
-                <image src="/images/love.png" class="stat-icon"></image>
-                <text>{{item.likeCount || 0}}</text>
-              </view>
-            </view>
-          </view>
-        </view>
+        {{item.name}}
       </view>
-    </view>
-    
-    <!-- 空状态 -->
-    <view wx:if="{{currentContent.length === 0}}" class="empty">
-      <image class="empty-icon" src="/images/class_black.png"></image>
-      <text class="empty-text">该分类暂无内容</text>
     </view>
   </scroll-view>
+
+  <!-- 页面标题（点赞/收藏/历史模式） -->
+  <view wx:if="{{title}}" class="page-header">
+    <text class="page-title">{{title}}</text>
+  </view>
+
+  <!-- 内容列表 -->
+  <view class="content-list">
+    <block wx:if="{{currentContent.length > 0}}">
+      <view
+        class="content-item"
+        wx:for="{{currentContent}}"
+        wx:key="id"
+      >
+        <culture-card 
+          item="{{item}}" 
+          bind:tap="goToDetail"
+        ></culture-card>
+      </view>
+    </block>
+    
+    <!-- 空状态 -->
+    <view wx:if="{{!loading && currentContent.length === 0}}" class="empty-state">
+      <image class="empty-icon" src="/images/empty.png" mode="aspectFit"></image>
+      <text class="empty-text">暂无内容</text>
+      <text class="empty-tip" wx:if="{{type === 'likes'}}">去浏览并点赞你喜欢的内容吧</text>
+      <text class="empty-tip" wx:if="{{type === 'collects'}}">去收藏你感兴趣的内容吧</text>
+      <text class="empty-tip" wx:if="{{type === 'history'}}">还没有浏览记录</text>
+    </view>
+    
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading">
+      <text>加载中...</text>
+    </view>
+    
+    <!-- 没有更多 -->
+    <view wx:if="{{!hasMore && currentContent.length > 0}}" class="no-more">
+      <text>没有更多了</text>
+    </view>
+  </view>
 </view>

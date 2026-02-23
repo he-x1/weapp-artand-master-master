@@ -1,5 +1,8 @@
 {
   "navigationBarTitleText": "文化分类",
-  "usingComponents": {},
-  "enablePullDownRefresh": false
+  "usingComponents": {
+    "culture-card": "/components/culture-card/culture-card"
+  },
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
 }
