@@ -117,6 +117,16 @@ Page({
     })
   },
 
+  // 精选内容图片加载失败
+  onRecommendImageError: function(e) {
+    const index = e.currentTarget.dataset.index
+    if (index !== undefined) {
+      const recommendList = this.data.recommendList
+      recommendList[index].image = '/images/bg.png'
+      this.setData({ recommendList })
+    }
+  },
+
   // 下拉刷新
   onPullDownRefresh: async function() {
     await this.loadData()

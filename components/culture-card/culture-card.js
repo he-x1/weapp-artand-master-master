@@ -8,7 +8,7 @@ Component({
   },
 
   data: {
-    defaultImage: '/images/class_white.png',
+    defaultImage: '/images/bg.png',  // 使用已有的背景图作为默认图片
     currentImage: ''
   },
 

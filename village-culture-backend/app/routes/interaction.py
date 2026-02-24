@@ -1,9 +1,22 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request, get_jwt
+from functools import wraps
 from app.models import db, Culture, Like, Collect, ViewHistory, UserBehavior
 from loguru import logger
 
 interaction_bp = Blueprint('interaction', __name__)
+
+def optional_jwt(fn):
+    """可选JWT认证装饰器 - 如果token存在则验证，不存在则继续"""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            verify_jwt_in_request(optional=True)
+            return fn(*args, **kwargs)
+        except Exception as e:
+            logger.warning(f'JWT验证失败，继续以未登录状态处理: {str(e)}')
+            return fn(*args, **kwargs)
+    return wrapper
 
 @interaction_bp.route('/interaction/like', methods=['POST'])
 @jwt_required()
@@ -98,10 +111,20 @@ def uncollect():
         return jsonify({'code': 500, 'message': '操作失败'}), 500
 
 @interaction_bp.route('/interaction/add-history', methods=['POST'])
-@jwt_required()
+@optional_jwt
 def add_history():
     try:
-        user_id = get_jwt_identity()
+        # 尝试获取用户ID，如果未登录则跳过记录
+        user_id = None
+        try:
+            user_id = get_jwt_identity()
+        except:
+            pass
+
+        if not user_id:
+            # 未登录状态直接返回成功，不记录历史
+            return jsonify({'code': 0, 'message': 'success'})
+
         data = request.get_json()
         culture_id = data.get('id')
         if not culture_id:
@@ -231,16 +254,32 @@ def get_history():
         logger.error(f'获取浏览历史失败: {str(e)}')
         return jsonify({'code': 500, 'message': '获取失败'}), 500
 
-# 新增：检查用户对某内容的互动状态
+# 检查用户对某内容的互动状态（支持未登录状态）
 @interaction_bp.route('/interaction/status/<int:culture_id>', methods=['GET'])
-@jwt_required()
+@optional_jwt
 def get_interaction_status(culture_id):
     try:
-        user_id = get_jwt_identity()
-        
+        # 尝试获取用户ID，如果未登录则为None
+        user_id = None
+        try:
+            user_id = get_jwt_identity()
+        except:
+            pass
+
+        if not user_id:
+            # 未登录状态返回默认值
+            return jsonify({
+                'code': 0,
+                'message': 'success',
+                'data': {
+                    'isLiked': False,
+                    'isCollected': False
+                }
+            })
+
         is_liked = Like.query.filter_by(user_id=user_id, culture_id=culture_id).first() is not None
         is_collected = Collect.query.filter_by(user_id=user_id, culture_id=culture_id).first() is not None
-        
+
         return jsonify({
             'code': 0,
             'message': 'success',

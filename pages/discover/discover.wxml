@@ -65,34 +65,38 @@
       <view class="section-line"></view>
     </view>
 
-    <view class="img-grid" wx:if="{{recommendList.length > 0}}">
+    <!-- 左图右文列表布局 -->
+    <view class="recommend-list" wx:if="{{recommendList.length > 0}}">
       <view
-        class="grid-row"
+        class="recommend-item"
         wx:for="{{recommendList}}"
         wx:key="id"
+        bindtap="goToDetail"
+        data-item="{{item}}"
       >
-        <view
-          class="grid-item"
-          bindtap="goToDetail"
-          data-item="{{item}}"
-        >
-          <image
-            src="{{item.image}}"
-            class="grid-image"
-            mode="aspectFill"
-            lazy-load="true"
-          ></image>
-          <view class="grid-overlay">
-            <text class="grid-title">{{item.name}}</text>
-            <view class="stats-bar">
-              <view class="stat">
-                <image src="/images/see.png" class="stat-icon"></image>
-                <text>{{item.viewCount || 0}}</text>
-              </view>
-              <view class="stat">
-                <image src="/images/love.png" class="stat-icon"></image>
-                <text>{{item.likeCount || 0}}</text>
-              </view>
+        <image
+          src="{{item.image || '/images/bg.png'}}"
+          class="recommend-image"
+          mode="aspectFill"
+          lazy-load="true"
+          binderror="onRecommendImageError"
+          data-index="{{index}}"
+        ></image>
+        <view class="recommend-info">
+          <text class="recommend-name">{{item.name}}</text>
+          <text class="recommend-desc">{{item.description || '暂无描述'}}</text>
+          <view class="recommend-stats">
+            <view class="stat">
+              <image src="/images/see.png" class="stat-icon"></image>
+              <text>{{item.viewCount || 0}}</text>
+            </view>
+            <view class="stat">
+              <image src="/images/love.png" class="stat-icon"></image>
+              <text>{{item.likeCount || 0}}</text>
+            </view>
+            <view class="stat">
+              <image src="/images/collect.png" class="stat-icon"></image>
+              <text>{{item.collectCount || 0}}</text>
             </view>
           </view>
         </view>

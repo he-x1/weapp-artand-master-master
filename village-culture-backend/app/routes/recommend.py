@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
+from functools import wraps
 from app.models import Culture, UserBehavior, Like, Collect, ViewHistory, db
 from app.services.recommender import recommender, get_personal_recommendations
 from loguru import logger
@@ -7,32 +8,58 @@ from collections import Counter
 
 recommend_bp = Blueprint('recommend', __name__)
 
+def optional_jwt(fn):
+    """可选JWT认证装饰器 - 如果token存在则验证，不存在则继续"""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            verify_jwt_in_request(optional=True)
+            return fn(*args, **kwargs)
+        except Exception as e:
+            logger.warning(f'JWT验证失败，继续以未登录状态处理: {str(e)}')
+            return fn(*args, **kwargs)
+    return wrapper
+
 @recommend_bp.route('/recommend/personal', methods=['GET'])
-@jwt_required()
+@optional_jwt
 def get_personal_recommend():
     """获取个性化推荐"""
     try:
-        user_id = get_jwt_identity()
+        # 尝试获取用户ID，如果未登录则为None
+        user_id = None
+        try:
+            user_id = get_jwt_identity()
+        except:
+            pass
+
         page_size = request.args.get('pageSize', 10, type=int)
-        
-        # 使用推荐系统获取推荐内容ID列表
-        recommended_ids = get_personal_recommendations(user_id, n=page_size)
-        
-        if not recommended_ids:
-            # 如果没有推荐结果，返回热门内容
+
+        # 如果未登录，返回热门内容
+        if not user_id:
             hot_cultures = Culture.query.filter_by(status=1).order_by(
-                Culture.view_count.desc(), 
+                Culture.view_count.desc(),
                 Culture.like_count.desc()
             ).limit(page_size).all()
             return jsonify({'code': 0, 'message': 'success', 'data': [item.to_dict() for item in hot_cultures]})
-        
+
+        # 使用推荐系统获取推荐内容ID列表
+        recommended_ids = get_personal_recommendations(user_id, n=page_size)
+
+        if not recommended_ids:
+            # 如果没有推荐结果，返回热门内容
+            hot_cultures = Culture.query.filter_by(status=1).order_by(
+                Culture.view_count.desc(),
+                Culture.like_count.desc()
+            ).limit(page_size).all()
+            return jsonify({'code': 0, 'message': 'success', 'data': [item.to_dict() for item in hot_cultures]})
+
         # 获取推荐的文化内容
         cultures = Culture.query.filter(Culture.id.in_(recommended_ids), Culture.status == 1).all()
-        
+
         # 按推荐顺序排序
         culture_dict = {c.id: c for c in cultures}
         sorted_cultures = [culture_dict[cid] for cid in recommended_ids if cid in culture_dict]
-        
+
         return jsonify({'code': 0, 'message': 'success', 'data': [item.to_dict() for item in sorted_cultures]})
     except Exception as e:
         logger.error(f'个性化推荐失败: {str(e)}')
