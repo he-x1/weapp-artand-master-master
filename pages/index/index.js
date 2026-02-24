@@ -16,17 +16,24 @@ Page({
 
   onLoad: function() {
     var that = this
-    // 获取系统信息
     app.getSystemInfo(function(res) {
       that.setData({
         systemInfo: res
       })
     })
     
-    // 加载数据
     this.loadBanners()
     this.loadCategories()
     this.loadContent()
+  },
+
+  // 标准化图片URL
+  normalizeImage: function(image) {
+    const defaultImage = '/images/bg.png'
+    if (!image) return defaultImage
+    if (image.startsWith('http')) return image
+    if (image.startsWith('/images/')) return image
+    return defaultImage
   },
 
   // 加载轮播图
@@ -34,8 +41,12 @@ Page({
     try {
       const res = await apiService.getBanners()
       if (res.code === 0) {
+        const banners = res.data.map(item => ({
+          ...item,
+          image: this.normalizeImage(item.image)
+        }))
         this.setData({
-          banners: res.data
+          banners: banners
         })
       }
     } catch (err) {
@@ -70,7 +81,10 @@ Page({
         : await apiService.getLatest(page)
       
       if (res.code === 0) {
-        const newList = res.data.list || res.data
+        const newList = (res.data.list || res.data || []).map(item => ({
+          ...item,
+          image: this.normalizeImage(item.image)
+        }))
         const contentList = isRefresh ? newList : [...this.data.contentList, ...newList]
         
         this.setData({
@@ -86,11 +100,10 @@ Page({
     }
   },
 
-  // 切换Tab（防止抖动）
+  // 切换Tab
   switchTab: function(e) {
     const tab = parseInt(e.currentTarget.dataset.tab)
     if (tab !== this.data.currentTab) {
-      // 先重置状态，再加载数据
       this.setData({
         currentTab: tab,
         contentList: [],
@@ -98,7 +111,6 @@ Page({
         hasMore: true
       })
       
-      // 延迟加载数据，避免抖动
       setTimeout(() => {
         this.loadContent(true)
       }, 100)

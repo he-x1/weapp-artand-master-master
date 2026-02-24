@@ -55,14 +55,14 @@
       <text class="info-value">{{work.category}}</text>
     </view>
 
-    <!-- 摘要 -->
-    <view class="summary-section" wx:if="{{work.summary}}">
+    <!-- 摘要 - 始终显示 -->
+    <view class="summary-section">
       <text class="summary-title">内容摘要</text>
-      <text class="summary-content">{{work.summary}}</text>
+      <text class="summary-content">{{work.summary || work.description || '暂无摘要'}}</text>
     </view>
 
     <!-- 详细介绍 -->
-    <view class="intro-section">
+    <view class="intro-section" wx:if="{{work.description}}">
       <text class="intro-title">详细介绍</text>
       <text class="intro-content">{{work.description}}</text>
     </view>
@@ -116,7 +116,7 @@
       <text>{{isCollected ? '已收藏' : '收藏'}}</text>
     </button>
     <button class="action-btn" open-type="share">
-      <image src="/images/share.png" class="action-icon" mode="aspectFit"></image>
+      <image src="/images/love.png" class="action-icon" mode="aspectFit"></image>
       <text>分享</text>
     </button>
   </view>

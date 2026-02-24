@@ -28,12 +28,13 @@
         data-item="{{item}}"
       >
         <image
-          src="{{item.image}}"
+          src="{{item.image || '/images/bg.png'}}"
           class="discover-image"
           mode="aspectFill"
           lazy-load="true"
         ></image>
         <view class="img-overlay">
+          <text class="img-title">{{item.name}}</text>
           <view class="stats-bar">
             <view class="stat">
               <image src="/images/see.png" class="stat-icon"></image>
@@ -58,14 +59,13 @@
     </view>
   </view>
 
-  <!-- 精选内容 -->
+  <!-- 精选内容 - 左图右文布局 -->
   <view class="section">
     <view class="section-header">
       <text class="section-title">精选内容</text>
       <view class="section-line"></view>
     </view>
 
-    <!-- 左图右文列表布局 -->
     <view class="recommend-list" wx:if="{{recommendList.length > 0}}">
       <view
         class="recommend-item"
@@ -84,7 +84,7 @@
         ></image>
         <view class="recommend-info">
           <text class="recommend-name">{{item.name}}</text>
-          <text class="recommend-desc">{{item.description || '暂无描述'}}</text>
+          <text class="recommend-desc">{{item.summary || item.description || '暂无描述'}}</text>
           <view class="recommend-stats">
             <view class="stat">
               <image src="/images/see.png" class="stat-icon"></image>

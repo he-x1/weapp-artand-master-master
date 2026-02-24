@@ -12,21 +12,19 @@ Page({
     loading: false,
     page: 1,
     hasMore: true,
-    type: 'category', // category, likes, collects, history
+    type: 'category',
     title: ''
   },
 
   onLoad: function (options) {
     var that = this
     
-    // 获取设备信息
     app.getSystemInfo(function(res) {
       that.setData({
         systemInfo: res
       })
     })
 
-    // 根据参数决定加载类型
     if (options.type) {
       const type = options.type
       const title = options.title || ''
@@ -36,15 +34,12 @@ Page({
         title: title
       })
       
-      // 设置页面标题
       if (title) {
         wx.setNavigationBarTitle({ title: title })
       }
       
-      // 加载对应类型的数据
       this.loadDataByType(type)
     } else if (options.categoryId) {
-      // 分类浏览模式
       const categoryId = parseInt(options.categoryId)
       this.setData({
         type: 'category',
@@ -54,7 +49,6 @@ Page({
         this.loadCategoryContent(categoryId)
       })
     } else {
-      // 默认加载所有分类
       this.loadCategories().then(() => {
         if (this.data.categories.length > 0) {
           this.setData({ activeCategoryId: this.data.categories[0].id })
@@ -65,15 +59,22 @@ Page({
   },
 
   onShow: function() {
-    // 每次显示页面时，如果是点赞/收藏/历史页面，重新加载数据
     if (this.data.type !== 'category' && app.globalData.isLoggedIn) {
       this.loadDataByType(this.data.type)
     }
   },
 
+  // 标准化图片URL
+  normalizeImage: function(image) {
+    const defaultImage = '/images/bg.png'
+    if (!image) return defaultImage
+    if (image.startsWith('http')) return image
+    if (image.startsWith('/images/')) return image
+    return defaultImage
+  },
+
   // 根据类型加载数据
   loadDataByType: async function(type) {
-    // 检查登录状态
     if (!app.globalData.isLoggedIn) {
       wx.showToast({
         title: '请先登录',
@@ -96,29 +97,34 @@ Page({
         case 'likes':
           res = await apiService.getLikes(1, 20)
           if (res.code === 0) {
-            contentList = res.data.list || []
-            console.log('点赞列表:', contentList.length, '条')
+            contentList = (res.data.list || []).map(item => ({
+              ...item,
+              image: this.normalizeImage(item.image)
+            }))
           }
           break
           
         case 'collects':
           res = await apiService.getCollects(1, 20)
           if (res.code === 0) {
-            contentList = res.data.list || []
-            console.log('收藏列表:', contentList.length, '条')
+            contentList = (res.data.list || []).map(item => ({
+              ...item,
+              image: this.normalizeImage(item.image)
+            }))
           }
           break
           
         case 'history':
           res = await apiService.getHistory(1, 20)
           if (res.code === 0) {
-            contentList = res.data.list || []
-            console.log('历史列表:', contentList.length, '条')
+            contentList = (res.data.list || []).map(item => ({
+              ...item,
+              image: this.normalizeImage(item.image)
+            }))
           }
           break
           
         default:
-          // 分类模式
           await this.loadCategories()
           if (this.data.categories.length > 0) {
             this.setData({ activeCategoryId: this.data.categories[0].id })
@@ -179,7 +185,10 @@ Page({
       
       const res = await apiService.getByCategory(categoryId, page)
       if (res.code === 0) {
-        const newContent = res.data.list || []
+        const newContent = (res.data.list || []).map(item => ({
+          ...item,
+          image: this.normalizeImage(item.image)
+        }))
         const currentContent = isLoadMore 
           ? [...this.data.currentContent, ...newContent]
           : newContent
@@ -203,7 +212,6 @@ Page({
   switchCategory: function(e) {
     const categoryId = e.currentTarget.dataset.id
     
-    // 重置页码
     this.setData({
       page: 1,
       hasMore: true,
@@ -248,7 +256,10 @@ Page({
       }
       
       if (res && res.code === 0) {
-        const newContent = res.data.list || []
+        const newContent = (res.data.list || []).map(item => ({
+          ...item,
+          image: this.normalizeImage(item.image)
+        }))
         this.setData({
           currentContent: [...this.data.currentContent, ...newContent],
           hasMore: res.data.hasMore !== false,
@@ -268,6 +279,16 @@ Page({
     wx.navigateTo({
       url: `/pages/work-detail/work-detail?id=${item.id}`
     })
+  },
+
+  // 图片加载失败
+  onImageError: function(e) {
+    const index = e.currentTarget.dataset.index
+    if (index !== undefined) {
+      const currentContent = this.data.currentContent
+      currentContent[index].image = '/images/bg.png'
+      this.setData({ currentContent })
+    }
   },
 
   // 触底加载更多

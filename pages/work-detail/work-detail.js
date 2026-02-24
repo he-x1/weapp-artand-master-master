@@ -14,19 +14,17 @@ Page({
     isCollected: false,
     relatedList: [],
     loading: true,
-    defaultImage: '/images/bg.png'  // 使用已有的背景图作为默认图片
+    defaultImage: '/images/bg.png'
   },
 
   onLoad: function (options) {
     var that = this
     
-    // 获取内容ID
     if (options.id) {
       this.setData({ workId: options.id })
       this.loadDetail(options.id)
     }
     
-    // 获取系统信息
     app.getSystemInfo(function(res) {
       that.setData({
         systemInfo: res
@@ -35,10 +33,23 @@ Page({
   },
 
   onShow: function() {
-    // 每次显示页面时检查用户互动状态
     if (app.globalData.isLoggedIn && this.data.workId) {
       this.loadInteractionStatus(this.data.workId)
     }
+  },
+
+  // 标准化图片URL
+  normalizeImage: function(image) {
+    if (!image) {
+      return this.data.defaultImage
+    }
+    if (image.startsWith('http')) {
+      return image
+    }
+    if (image.startsWith('/images/')) {
+      return image
+    }
+    return this.data.defaultImage
   },
 
   // 加载内容详情
@@ -50,15 +61,17 @@ Page({
       if (res.code === 0) {
         const work = res.data
 
-        // 设置轮播图（使用主图），处理空图片情况
+        // 标准化图片
+        work.image = this.normalizeImage(work.image)
+        
+        // 设置轮播图
         let swipers = []
         if (work.images) {
           swipers = work.images.split(',')
-            .map((url, index) => ({ id: index + 1, url: url.trim() }))
-            .filter(s => s.url)  // 过滤空URL
+            .map((url, index) => ({ id: index + 1, url: this.normalizeImage(url.trim()) }))
+            .filter(s => s.url)
         }
 
-        // 如果没有图片，使用默认图片
         if (swipers.length === 0) {
           swipers = [{ id: 1, url: work.image || this.data.defaultImage }]
         }
@@ -71,13 +84,9 @@ Page({
           loading: false
         })
         
-        // 加载相关推荐
         this.loadRelated(work.categoryId)
-        
-        // 记录浏览历史
         this.addHistory(id)
         
-        // 加载用户互动状态
         if (app.globalData.isLoggedIn) {
           this.loadInteractionStatus(id)
         }
@@ -120,11 +129,14 @@ Page({
   // 加载相关推荐
   loadRelated: async function(categoryId) {
     try {
-      // 使用相似推荐接口
       const res = await apiService.getSimilarRecommend(this.data.workId, 5)
       if (res.code === 0) {
-        // 过滤掉当前内容
-        const related = res.data.filter(item => item.id !== parseInt(this.data.workId))
+        const related = res.data
+          .filter(item => item.id !== parseInt(this.data.workId))
+          .map(item => ({
+            ...item,
+            image: this.normalizeImage(item.image)
+          }))
         
         this.setData({
           relatedList: related
@@ -132,13 +144,16 @@ Page({
       }
     } catch (err) {
       console.error('加载相关推荐失败：', err)
-      // 如果相似推荐失败，尝试按分类加载
       try {
         const res = await apiService.getByCategory(categoryId)
         if (res.code === 0) {
           const related = res.data.list
             .filter(item => item.id !== parseInt(this.data.workId))
             .slice(0, 5)
+            .map(item => ({
+              ...item,
+              image: this.normalizeImage(item.image)
+            }))
           
           this.setData({
             relatedList: related
@@ -153,9 +168,7 @@ Page({
   // 记录浏览历史
   addHistory: async function(id) {
     try {
-      if (app.globalData.isLoggedIn) {
-        await apiService.addHistory(id)
-      }
+      await apiService.addHistory(id)
     } catch (err) {
       console.error('记录浏览历史失败：', err)
     }
@@ -182,7 +195,6 @@ Page({
       const { isLiked, workId, likeCount } = this.data
       
       if (isLiked) {
-        // 取消点赞
         const res = await apiService.unlike(workId)
         if (res.code === 0) {
           this.setData({
@@ -200,7 +212,6 @@ Page({
           })
         }
       } else {
-        // 执行点赞
         const res = await apiService.like(workId)
         if (res.code === 0) {
           this.setData({
@@ -248,7 +259,6 @@ Page({
       const { isCollected, workId, collectCount } = this.data
       
       if (isCollected) {
-        // 取消收藏
         const res = await apiService.uncollect(workId)
         if (res.code === 0) {
           this.setData({
@@ -266,7 +276,6 @@ Page({
           })
         }
       } else {
-        // 执行收藏
         const res = await apiService.collect(workId)
         if (res.code === 0) {
           this.setData({

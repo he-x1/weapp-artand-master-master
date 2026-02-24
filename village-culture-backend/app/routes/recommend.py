@@ -13,25 +13,36 @@ def optional_jwt(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         try:
-            verify_jwt_in_request(optional=True)
+            auth_header = request.headers.get('Authorization', '')
+            if auth_header and auth_header.startswith('Bearer '):
+                verify_jwt_in_request(optional=True)
             return fn(*args, **kwargs)
         except Exception as e:
             logger.warning(f'JWT验证失败，继续以未登录状态处理: {str(e)}')
             return fn(*args, **kwargs)
     return wrapper
 
+def get_current_user_id():
+    """安全地获取当前用户ID"""
+    try:
+        auth_header = request.headers.get('Authorization', '')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return None
+        token = auth_header.replace('Bearer ', '').strip()
+        if not token:
+            return None
+        verify_jwt_in_request(optional=True)
+        return get_jwt_identity()
+    except Exception as e:
+        logger.warning(f'获取用户ID失败: {str(e)}')
+        return None
+
 @recommend_bp.route('/recommend/personal', methods=['GET'])
 @optional_jwt
 def get_personal_recommend():
     """获取个性化推荐"""
     try:
-        # 尝试获取用户ID，如果未登录则为None
-        user_id = None
-        try:
-            user_id = get_jwt_identity()
-        except:
-            pass
-
+        user_id = get_current_user_id()
         page_size = request.args.get('pageSize', 10, type=int)
 
         # 如果未登录，返回热门内容
@@ -86,10 +97,6 @@ def update_preference():
     try:
         user_id = get_jwt_identity()
         data = request.get_json()
-        
-        # 这里可以扩展用户偏好设置逻辑
-        # 例如记录用户主动选择的兴趣标签
-        
         return jsonify({'code': 0, 'message': 'success'})
     except Exception as e:
         logger.error(f'更新用户偏好失败: {str(e)}')

@@ -21,92 +21,92 @@ def init_sample_data():
             {
                 'name': '苏绣',
                 'category_id': 1,
-                'description': '苏绣是中国优秀的民族传统工艺之一，是苏州地区刺绣产品的总称。',
-                'summary': '苏州传统刺绣',
+                'description': '苏绣是中国优秀的民族传统工艺之一，是苏州地区刺绣产品的总称，以针法精细、色彩雅致著称，被誉为"东方艺术明珠"。苏绣具有图案秀丽、构思巧妙、绣工细致、针法活泼、色彩清雅的独特风格。',
+                'summary': '苏绣是中国四大名绣之一，源自江苏苏州，以针法精细、色彩雅致著称，属国家级非物质文化遗产。',
                 'origin': '江苏苏州',
                 'heritage_level': '国家级',
-                'cover_image': '/images/default_culture.jpg'
+                'cover_image': '/images/Shadow_puppetry.png'
             },
             {
                 'name': '景德镇瓷器',
                 'category_id': 1,
-                'description': '景德镇瓷器以"白如玉、明如镜、薄如纸、声如磬"的独特风格闻名中外。',
-                'summary': '景德镇制瓷工艺',
+                'description': '景德镇瓷器以"白如玉、明如镜、薄如纸、声如磬"的独特风格闻名中外，是中国瓷器艺术的杰出代表。景德镇制瓷历史悠久，技艺精湛，产品远销海内外。',
+                'summary': '景德镇瓷器源自江西景德镇，以"白如玉、明如镜、薄如纸、声如磬"著称，属国家级非物质文化遗产。',
                 'origin': '江西景德镇',
                 'heritage_level': '国家级',
-                'cover_image': '/images/default_culture.jpg'
+                'cover_image': '/images/Cookie_cutter.png'
             },
             {
                 'name': '京剧',
                 'category_id': 2,
-                'description': '京剧是中国五大戏曲剧种之一，被视为中国国粹。',
-                'summary': '中国国粹戏曲',
+                'description': '京剧是中国五大戏曲剧种之一，被视为中国国粹。京剧以其独特的唱腔、精湛的表演和华丽的服饰著称，融合了唱、念、做、打等多种表演形式。',
+                'summary': '京剧是中国国粹，源自北京，融合唱念做打等表演形式，属世界级非物质文化遗产。',
                 'origin': '北京',
-                'heritage_level': '国家级',
-                'cover_image': '/images/default_culture.jpg'
+                'heritage_level': '世界级',
+                'cover_image': '/images/New_Year_pictures.png'
             },
             {
                 'name': '昆曲',
                 'category_id': 2,
-                'description': '昆曲是中国古老的戏曲声腔、剧种。',
-                'summary': '古老戏曲剧种',
+                'description': '昆曲是中国古老的戏曲声腔、剧种，被誉为"百戏之祖"。昆曲唱腔华丽婉转、念白儒雅、表演细腻，是中国传统戏曲艺术的瑰宝。',
+                'summary': '昆曲是"百戏之祖"，源自江苏昆山，唱腔华丽婉转，属世界级非物质文化遗产。',
                 'origin': '江苏昆山',
                 'heritage_level': '世界级',
-                'cover_image': '/images/default_culture.jpg'
+                'cover_image': '/images/candle.png'
             },
             {
                 'name': '端午节',
                 'category_id': 6,
-                'description': '端午节是集拜神祭祖、祈福辟邪、欢庆娱乐和饮食为一体的民俗大节。',
-                'summary': '中国传统节日',
+                'description': '端午节是集拜神祭祖、祈福辟邪、欢庆娱乐和饮食为一体的民俗大节，有赛龙舟、吃粽子、挂艾草等传统习俗，纪念爱国诗人屈原。',
+                'summary': '端午节是中国传统节日，有赛龙舟、吃粽子等习俗，纪念爱国诗人屈原，属世界级非物质文化遗产。',
                 'origin': '中国',
                 'heritage_level': '世界级',
-                'cover_image': '/images/default_culture.jpg'
+                'cover_image': '/images/stamp.png'
             },
             {
                 'name': '春节',
                 'category_id': 6,
-                'description': '春节是中华民族最隆重的传统佳节。',
-                'summary': '最重要的传统节日',
+                'description': '春节是中华民族最隆重的传统佳节，是集祈福攘灾、欢庆娱乐和饮食为一体的民俗大节，有贴春联、放鞭炮、拜年等传统习俗。',
+                'summary': '春节是中华民族最重要的传统节日，有贴春联、放鞭炮、拜年等习俗，属国家级非物质文化遗产。',
                 'origin': '中国',
                 'heritage_level': '国家级',
-                'cover_image': '/images/default_culture.jpg'
+                'cover_image': '/images/plate.png'
             },
             {
                 'name': '嫦娥奔月',
                 'category_id': 4,
-                'description': '嫦娥奔月是中国上古时代神话传说故事。',
-                'summary': '古代神话传说',
+                'description': '嫦娥奔月是中国上古时代神话传说故事，讲述了嫦娥偷食不死之药后飞升月宫的故事，寄托了人们对美好生活的向往。',
+                'summary': '嫦娥奔月是中国古代神话传说，讲述嫦娥飞升月宫的故事，寄托人们对美好生活的向往。',
                 'origin': '中国',
                 'heritage_level': '民间传说',
-                'cover_image': '/images/default_culture.jpg'
+                'cover_image': '/images/cup.png'
             },
             {
                 'name': '少林功夫',
                 'category_id': 2,
-                'description': '少林功夫是中国武术中体系最庞大的门派，是中华武术的象征。',
-                'summary': '中国武术代表',
+                'description': '少林功夫是中国武术中体系最庞大的门派，是中华武术的象征。少林功夫以禅武合一、内外兼修著称，包含丰富的套路和技法。',
+                'summary': '少林功夫源自河南登封，禅武合一、内外兼修，是中华武术的象征，属世界级非物质文化遗产。',
                 'origin': '河南登封',
                 'heritage_level': '世界级',
-                'cover_image': '/images/default_culture.jpg'
+                'cover_image': '/images/Shadow_puppetry.png'
             },
             {
                 'name': '苗族银饰',
                 'category_id': 1,
-                'description': '苗族银饰是苗族重要的文化标志，精美的工艺在中国民族首饰中占有重要地位。',
-                'summary': '苗族传统首饰',
+                'description': '苗族银饰是苗族重要的文化标志，精美的工艺在中国民族首饰中占有重要地位。苗族银饰造型美观、工艺精湛，体现了苗族人民的智慧。',
+                'summary': '苗族银饰源自贵州、湖南，工艺精湛、造型美观，是苗族文化标志，属国家级非物质文化遗产。',
                 'origin': '贵州、湖南',
                 'heritage_level': '国家级',
-                'cover_image': '/images/default_culture.jpg'
+                'cover_image': '/images/Cookie_cutter.png'
             },
             {
                 'name': '泥人张',
                 'category_id': 1,
-                'description': '泥人张彩塑为天津市的一种民间文化，著名的汉族传统手工艺品之一。',
-                'summary': '天津彩塑艺术',
+                'description': '泥人张彩塑为天津市的一种民间文化，是著名的汉族传统手工艺品之一。泥人张彩塑造型生动、色彩丰富，具有很高的艺术价值。',
+                'summary': '泥人张彩塑源自天津，造型生动、色彩丰富，是著名的传统手工艺，属国家级非物质文化遗产。',
                 'origin': '天津',
                 'heritage_level': '国家级',
-                'cover_image': '/images/default_culture.jpg'
+                'cover_image': '/images/New_Year_pictures.png'
             }
         ]
 
@@ -117,30 +117,34 @@ def init_sample_data():
                 # 检查是否已存在
                 existing = Culture.query.filter_by(name=item['name']).first()
                 if existing:
-                    logger.info(f'数据已存在: {item["name"]}')
-                    continue
-
-                # 创建记录
-                culture = Culture(
-                    name=item['name'],
-                    category_id=item['category_id'],
-                    description=item.get('description', ''),
-                    summary=item.get('summary', ''),
-                    origin=item.get('origin', '中国'),
-                    heritage_level=item.get('heritage_level'),
-                    cover_image=item.get('cover_image', '/images/default_culture.jpg'),
-                    source='示例数据',
-                    status=1,
-                    is_recommend=True,
-                    score=50.0
-                )
-
-                db.session.add(culture)
+                    # 更新现有数据
+                    existing.description = item.get('description', '')
+                    existing.summary = item.get('summary', '')
+                    existing.origin = item.get('origin', '中国')
+                    existing.heritage_level = item.get('heritage_level')
+                    existing.cover_image = item.get('cover_image', '/images/bg.png')
+                    logger.info(f'更新数据: {item["name"]}')
+                else:
+                    # 创建记录
+                    culture = Culture(
+                        name=item['name'],
+                        category_id=item['category_id'],
+                        description=item.get('description', ''),
+                        summary=item.get('summary', ''),
+                        origin=item.get('origin', '中国'),
+                        heritage_level=item.get('heritage_level'),
+                        cover_image=item.get('cover_image', '/images/bg.png'),
+                        source='示例数据',
+                        status=1,
+                        is_recommend=True,
+                        score=50.0
+                    )
+                    db.session.add(culture)
+                    logger.info(f'添加: {item["name"]}')
                 imported_count += 1
-                logger.info(f'添加: {item["name"]}')
 
             db.session.commit()
-            logger.info(f'✅ 成功导入 {imported_count} 条示例数据')
+            logger.info(f'✅ 成功处理 {imported_count} 条示例数据')
 
         except Exception as e:
             db.session.rollback()

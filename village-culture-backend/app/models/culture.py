@@ -40,7 +40,7 @@ class Culture(db.Model):
     view_count = db.Column(db.Integer, default=0)
     like_count = db.Column(db.Integer, default=0)
     collect_count = db.Column(db.Integer, default=0)
-    share_count = db.Column(db.Integer, default=0)  # 添加分享计数字段
+    share_count = db.Column(db.Integer, default=0)
     score = db.Column(db.Float, default=0.0)
     is_hot = db.Column(db.Boolean, default=False)
     is_recommend = db.Column(db.Boolean, default=True)
@@ -59,7 +59,9 @@ class Culture(db.Model):
             'description': self.description,
             'summary': self.summary,
             'origin': self.origin,
+            'heritageLevel': self.heritage_level,
             'image': self.cover_image,
+            'images': self.images,
             'viewCount': self.view_count,
             'likeCount': self.like_count,
             'collectCount': self.collect_count,

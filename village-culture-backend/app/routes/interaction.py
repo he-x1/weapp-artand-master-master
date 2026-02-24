@@ -11,12 +11,31 @@ def optional_jwt(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         try:
-            verify_jwt_in_request(optional=True)
+            # 获取Authorization header
+            auth_header = request.headers.get('Authorization', '')
+            if auth_header and auth_header.startswith('Bearer '):
+                # 有token才验证
+                verify_jwt_in_request(optional=True)
             return fn(*args, **kwargs)
         except Exception as e:
             logger.warning(f'JWT验证失败，继续以未登录状态处理: {str(e)}')
             return fn(*args, **kwargs)
     return wrapper
+
+def get_current_user_id():
+    """安全地获取当前用户ID"""
+    try:
+        auth_header = request.headers.get('Authorization', '')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return None
+        token = auth_header.replace('Bearer ', '').strip()
+        if not token:
+            return None
+        verify_jwt_in_request(optional=True)
+        return get_jwt_identity()
+    except Exception as e:
+        logger.warning(f'获取用户ID失败: {str(e)}')
+        return None
 
 @interaction_bp.route('/interaction/like', methods=['POST'])
 @jwt_required()
@@ -114,25 +133,33 @@ def uncollect():
 @optional_jwt
 def add_history():
     try:
-        # 尝试获取用户ID，如果未登录则跳过记录
-        user_id = None
-        try:
-            user_id = get_jwt_identity()
-        except:
-            pass
-
-        if not user_id:
-            # 未登录状态直接返回成功，不记录历史
-            return jsonify({'code': 0, 'message': 'success'})
-
+        user_id = get_current_user_id()
         data = request.get_json()
         culture_id = data.get('id')
+        
         if not culture_id:
             return jsonify({'code': 400, 'message': '缺少参数'}), 400
-        history = ViewHistory(user_id=user_id, culture_id=culture_id)
-        db.session.add(history)
+        
+        if not user_id:
+            # 未登录用户不记录历史
+            return jsonify({'code': 0, 'message': 'success'})
+        
+        culture = Culture.query.get(culture_id)
+        if not culture:
+            return jsonify({'code': 404, 'message': '内容不存在'}), 404
+        
+        # 更新或创建浏览历史
+        history = ViewHistory.query.filter_by(user_id=user_id, culture_id=culture_id).first()
+        if history:
+            history.created_at = db.func.now()
+        else:
+            history = ViewHistory(user_id=user_id, culture_id=culture_id)
+            db.session.add(history)
+        
+        # 记录用户行为
         behavior = UserBehavior(user_id=user_id, culture_id=culture_id, behavior_type='view', weight=1.0)
         db.session.add(behavior)
+        
         db.session.commit()
         return jsonify({'code': 0, 'message': 'success'})
     except Exception as e:
@@ -140,12 +167,16 @@ def add_history():
         logger.error(f'记录浏览历史失败: {str(e)}')
         return jsonify({'code': 500, 'message': '操作失败'}), 500
 
-# 新增：获取用户点赞列表
+# 获取用户点赞列表
 @interaction_bp.route('/interaction/likes', methods=['GET'])
-@jwt_required()
+@optional_jwt
 def get_likes():
     try:
-        user_id = get_jwt_identity()
+        user_id = get_current_user_id()
+        
+        if not user_id:
+            return jsonify({'code': 0, 'message': 'success', 'data': {'list': [], 'total': 0, 'page': 1, 'pageSize': 20, 'hasMore': False}})
+        
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('pageSize', 20, type=int)
         
@@ -180,10 +211,14 @@ def get_likes():
 
 # 新增：获取用户收藏列表
 @interaction_bp.route('/interaction/collects', methods=['GET'])
-@jwt_required()
+@optional_jwt
 def get_collects():
     try:
-        user_id = get_jwt_identity()
+        user_id = get_current_user_id()
+        
+        if not user_id:
+            return jsonify({'code': 0, 'message': 'success', 'data': {'list': [], 'total': 0, 'page': 1, 'pageSize': 20, 'hasMore': False}})
+        
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('pageSize', 20, type=int)
         
@@ -218,10 +253,14 @@ def get_collects():
 
 # 新增：获取用户浏览历史
 @interaction_bp.route('/interaction/history', methods=['GET'])
-@jwt_required()
+@optional_jwt
 def get_history():
     try:
-        user_id = get_jwt_identity()
+        user_id = get_current_user_id()
+        
+        if not user_id:
+            return jsonify({'code': 0, 'message': 'success', 'data': {'list': [], 'total': 0, 'page': 1, 'pageSize': 20, 'hasMore': False}})
+        
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('pageSize', 20, type=int)
         
@@ -259,12 +298,7 @@ def get_history():
 @optional_jwt
 def get_interaction_status(culture_id):
     try:
-        # 尝试获取用户ID，如果未登录则为None
-        user_id = None
-        try:
-            user_id = get_jwt_identity()
-        except:
-            pass
+        user_id = get_current_user_id()
 
         if not user_id:
             # 未登录状态返回默认值

@@ -29,6 +29,21 @@ Page({
     this.loadPersonalRecommend()
   },
 
+  // 标准化图片URL
+  normalizeImage: function(image) {
+    const defaultImage = '/images/bg.png'
+    if (!image) {
+      return defaultImage
+    }
+    if (image.startsWith('http')) {
+      return image
+    }
+    if (image.startsWith('/images/')) {
+      return image
+    }
+    return defaultImage
+  },
+
   // 加载数据
   loadData: async function() {
     this.setData({ loading: true })
@@ -41,8 +56,13 @@ Page({
       ])
       
       if (hotRes.code === 0) {
+        // 标准化图片路径
+        const hotList = (hotRes.data || []).map(item => ({
+          ...item,
+          image: this.normalizeImage(item.image)
+        }))
         this.setData({
-          hotList: hotRes.data || []
+          hotList: hotList
         })
       }
     } catch (err) {
@@ -57,16 +77,19 @@ Page({
     try {
       let res
       if (app.globalData.isLoggedIn) {
-        // 已登录用户获取个性化推荐
         res = await apiService.getPersonalRecommend(10)
       } else {
-        // 未登录用户获取热门推荐
         res = await apiService.getHotRecommend(10)
       }
       
       if (res.code === 0) {
+        // 标准化图片路径
+        const recommendList = (res.data || []).map(item => ({
+          ...item,
+          image: this.normalizeImage(item.image)
+        }))
         this.setData({
-          recommendList: res.data || []
+          recommendList: recommendList
         })
       }
     } catch (err) {

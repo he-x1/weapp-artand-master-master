@@ -1,4 +1,3 @@
-// components/culture-card/culture-card.js
 Component({
   properties: {
     item: {
@@ -8,35 +7,50 @@ Component({
   },
 
   data: {
-    defaultImage: '/images/bg.png',  // 使用已有的背景图作为默认图片
+    defaultImage: '/images/bg.png',
     currentImage: ''
   },
 
   observers: {
     'item.image': function(image) {
-      // 当图片URL变化时，更新当前图片
       this.setData({
-        currentImage: image || this.data.defaultImage
+        currentImage: this.normalizeImage(image)
       })
     }
   },
 
   lifetimes: {
     attached: function() {
-      // 初始化图片
       this.setData({
-        currentImage: this.properties.item.image || this.data.defaultImage
+        currentImage: this.normalizeImage(this.properties.item.image)
       })
     }
   },
 
   methods: {
+    // 标准化图片URL
+    normalizeImage: function(image) {
+      if (!image) {
+        return this.data.defaultImage
+      }
+      // 如果是本地路径且以/images/开头，保持不变
+      // 小程序会自动从项目根目录查找
+      if (image.startsWith('/images/')) {
+        return image
+      }
+      // 如果是网络图片，直接返回
+      if (image.startsWith('http')) {
+        return image
+      }
+      // 其他情况使用默认图片
+      return this.data.defaultImage
+    },
+
     onTap: function() {
       this.triggerEvent('tap', { item: this.properties.item })
     },
 
-    onImageError: function() {
-      // 图片加载失败时，使用默认图片
+    onImageError: function(e) {
       console.warn('图片加载失败:', this.properties.item.image)
       this.setData({
         currentImage: this.data.defaultImage

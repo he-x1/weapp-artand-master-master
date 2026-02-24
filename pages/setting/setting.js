@@ -53,9 +53,9 @@ Page({
         apiService.getHistory(1, 1)
       ])
       
-      const likesCount = likesRes.code === 0 ? likesRes.data.total : 0
-      const collectsCount = collectsRes.code === 0 ? collectsRes.data.total : 0
-      const historyCount = historyRes.code === 0 ? historyRes.data.total : 0
+      const likesCount = likesRes && likesRes.code === 0 ? (likesRes.data.total || 0) : 0
+      const collectsCount = collectsRes && collectsRes.code === 0 ? (collectsRes.data.total || 0) : 0
+      const historyCount = historyRes && historyRes.code === 0 ? (historyRes.data.total || 0) : 0
       
       this.setData({
         stats: {
@@ -69,6 +69,7 @@ Page({
       })
     } catch (err) {
       console.error('加载统计数据失败：', err)
+      // 不显示错误提示，保持静默
     }
   },
 
